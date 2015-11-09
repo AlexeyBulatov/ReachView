@@ -257,6 +257,8 @@ class RTKLIB:
 
             self.semaphore.acquire()
 
+            self.rtkc.getStatus()
+
             if self.rtkc.info["solution_status"] == "single":
                 # we got our single status!
                 # get the coordinates and start the stream using them!
@@ -278,6 +280,12 @@ class RTKLIB:
 
                 if self.enable_led:
                     self.updateLED()
+
+                self.semaphore.release()
+
+                self.readConfigBase()
+
+                return
 
             self.semaphore.release()
 
@@ -343,6 +351,7 @@ class RTKLIB:
         if self.base_single_thread is not None:
             self.waiting_for_single = False
             self.base_single_thread.join()
+            self.base_single_thread = None
 
         res = self.s2sc.stop()
 
@@ -359,8 +368,6 @@ class RTKLIB:
             self.updateLED()
 
         self.semaphore.release()
-
-        return res
 
     def readConfigBase(self):
 
@@ -382,21 +389,26 @@ class RTKLIB:
 
         print("Restarting str2str...")
 
-        res = self.s2sc.stop() + self.s2sc.start()
-
-        if res > 1:
-            print("Restart successful")
-        else:
-            print("Restart failed")
-
-        self.saveState()
-
-        if self.enable_led:
-            self.updateLED()
-
         self.semaphore.release()
 
-        return res
+        self.stopBase()
+        self.startBase()
+
+        # res = self.s2sc.stop() + self.s2sc.start()
+
+        # if res > 1:
+        #     print("Restart successful")
+        # else:
+        #     print("Restart failed")
+
+        # self.saveState()
+
+        # if self.enable_led:
+        #     self.updateLED()
+
+        # self.semaphore.release()
+
+        # return res
 
     def writeConfigRover(self, config):
         # config dict must include config_name field
@@ -571,8 +583,8 @@ class RTKLIB:
             "gps_cmd_file": self.s2sc.gps_cmd_file
         }
 
-        print("DEBUG saving state")
-        print(str(state))
+        # print("DEBUG saving state")
+        # print(str(state))
 
         with open(self.state_file, "w") as f:
             json.dump(state, f, sort_keys = True, indent = 4)
@@ -775,6 +787,8 @@ class RTKLIB:
 
         while self.server_not_interrupted:
 
+            self.semaphore.acquire()
+
             # update satellite levels
             self.rtkc.getObs()
 
@@ -785,6 +799,9 @@ class RTKLIB:
             self.socketio.emit("satellite broadcast rover", self.rtkc.obs_rover, namespace = "/test")
             self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
+
+            self.semaphore.release()
+
             time.sleep(1)
 
     # this function reads current rtklib status, coordinates and obs count
@@ -793,8 +810,23 @@ class RTKLIB:
 
         while self.server_not_interrupted:
 
+            self.semaphore.acquire()
+
             # update RTKLIB status
             self.rtkc.getStatus()
+
+            if self.state == "base":
+                self.rtkc.info["positioning_mode"] = "base"
+
+                if self.waiting_for_single == True:
+                    # Base has been started, but is looking for current single coordinate
+                    self.rtkc.info["solution_status"] = "waiting for single solution"
+                else:
+                    # Base is not looking for a single coordinate. Is it started?
+                    if self.s2sc.started == True:
+                        self.rtkc.info["solution_status"] = "started"
+                    else:
+                        self.rtkc.info["solution_status"] = "stopped"
 
             if count % 10 == 0:
                 print("Sending RTKLIB status select information:")
@@ -806,4 +838,7 @@ class RTKLIB:
                 self.updateLED()
 
             count += 1
+
+            self.semaphore.release()
+
             time.sleep(1)
