@@ -72,6 +72,10 @@ class RTKLIB:
         self.satellite_thread = None
         self.coordinate_thread = None
 
+        # we will run this one while waiting for single status in single base mode
+        self.waiting_for_single = False
+        self.base_single_thread = None
+
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         self.loadState()
@@ -209,10 +213,12 @@ class RTKLIB:
         return res
 
     def launchBase(self):
-        # due to the way str2str works, we can't really separate launch and start
-        # all the configuration goes to startBase() function
-        # this launchBase() function exists to change the state of RTKLIB instance
-        # and to make the process for base and rover modes similar
+        # launching base mode means we launch and start rover in proxy mode
+        # it is required to show sat levels and get current coordinates in single mode
+        # the faster we get our single solution, the better
+
+        self.launchRover(self.conm.default_base_config)
+        self.startRover()
 
         self.semaphore.acquire()
 
@@ -228,12 +234,9 @@ class RTKLIB:
         self.semaphore.release()
 
     def shutdownBase(self):
-        # due to the way str2str works, we can't really separate launch and start
-        # all the configuration goes to startBase() function
-        # this shutdownBase() function exists to change the state of RTKLIB instance
-        # and to make the process for base and rover modes similar
 
         self.stopBase()
+        self.shutdownRover()
 
         self.semaphore.acquire()
 
@@ -248,23 +251,81 @@ class RTKLIB:
 
         self.semaphore.release()
 
-    def startBase(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
+    def getBaseSingleCoordinates(self):
+
+        while self.waiting_for_single:
+
+            self.semaphore.acquire()
+
+            if self.rtkc.info["solution_status"] == "single":
+                # we got our single status!
+                # get the coordinates and start the stream using them!
+
+                current_position = []
+                current_position.append(self.rtkc.info["lat"])
+                current_position.append(self.rtkc.info["lon"])
+                current_position.append(self.rtkc.info["height"])
+
+                result_message = "Got single solution. Starting base stream with coordinates " + " ".join(current_position)
+                print(result_message)
+                self.socketio.emit("banner", {"text": result_message}, namespace = "/test")
+
+                self.s2sc.start(base_position = current_position)
+
+                self.waiting_for_single = False
+
+                self.saveState()
+
+                if self.enable_led:
+                    self.updateLED()
+
+            self.semaphore.release()
+
+            time.sleep(1)
+
+    def startBase(self):
 
         self.semaphore.acquire()
 
-        print("Attempting to start str2str...")
+        print("Attempting to start base mode...")
+        print("Checking for valid base position...")
 
-        if not self.rtkc.started:
-            res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
+        # check if we have base coordinates configured already
+        if not self.s2sc.base_position:
+            # coordinates field is empty. That means we have to start in a single mode
+
+            # run a separate thread that will wait for single status on proxy rover,
+            # extract coordinates and run the base with valid coordinates
+            # when we are ready, we run the s2s binary, starting the stream
+
+            result_message = "Based started in single mode. Waiting for single status coordinates..."
+
+            print(result_message)
+            self.socketio.emit("banner", {"text": result_message}, namespace = "/test")
+
+            self.waiting_for_single = True
+
+            if self.base_single_thread is None:
+                self.base_single_thread = Thread(target = self.getBaseSingleCoordinates)
+                self.base_single_thread.start()
+
+        else:
+            # coordinates are set. We are good to go!
+            print("Valid base position found. Starting the base stream...")
+            res = self.s2sc.start()
+
+            result_message = ""
 
             if res < 0:
-                print("str2str start failed")
+                result_message = "Base stream start failed"
             elif res == 1:
-                print("str2str start successful")
+                result_message = "Base stream start successful"
             elif res == 2:
-                print("str2str already started")
-        else:
-            print("Can't start str2str with rtkrcv still running!!!!")
+                result_message = "Base stream already started"
+
+            # print status to debug output and send info to the frontend
+            print(result_message)
+            self.socketio.emit("banner", {"text": result_message}, namespace = "/test")
 
         self.saveState()
 
@@ -273,13 +334,15 @@ class RTKLIB:
 
         self.semaphore.release()
 
-        return res
-
     def stopBase(self):
 
         self.semaphore.acquire()
 
         print("Attempting to stop str2str...")
+
+        if self.base_single_thread is not None:
+            self.waiting_for_single = False
+            self.base_single_thread.join()
 
         res = self.s2sc.stop()
 
@@ -473,7 +536,7 @@ class RTKLIB:
 
         # send available configs to the browser
         self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-        
+
         print(self.conm.available_configs)
 
     def saveState(self):

@@ -50,7 +50,7 @@ class Str2StrController:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
         self.base_position = [] # lat, lon, height
 
-        self.setSerialStream() # input ublox serial
+        self.setTCPClientStream() # input tcp stream from rover proxy
         self.setTCPServerStream(input = False) # output tcp server on port 9000
 
     def readConfig(self):
@@ -72,28 +72,27 @@ class Str2StrController:
         parameters_to_send["4"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
         parameters_to_send["5"] = {"parameter": "base_pos_height", "value": base_pos[0], "description": "Base height"}
 
-        print("DEBUG read")
-
-        print(parameters_to_send)
         return parameters_to_send
 
     def writeConfig(self, parameters_received):
-
-        print("DEBUG write")
-
-        print(parameters_received)
-
-        coordinate_filled_flag = 3
-        base_pos = []
 
         self.input_stream = parameters_received["0"]["value"]
         self.output_stream = parameters_received["1"]["value"]
 
         # llh
         self.base_position = []
-        self.base_position.append(parameters_received["3"]["value"])
-        self.base_position.append(parameters_received["4"]["value"])
-        self.base_position.append(parameters_received["5"]["value"])
+
+        # perform minimal validity check for base position
+        base_pos = []
+        base_pos.append(parameters_received["3"]["value"])
+        base_pos.append(parameters_received["4"]["value"])
+        base_pos.append(parameters_received["5"]["value"])
+
+        # if at least one of the coordinates is empty, can't use it
+        if "" in base_pos:
+            base_pos = []
+
+        self.base_position = base_pos
 
         self.rtcm3_messages = parameters_received["2"]["value"].split(",")
 
@@ -139,13 +138,13 @@ class Str2StrController:
 
         def_parameters = [
             "localhost",
-            "9000"
+            "3000"
         ]
 
         if tcp_client_parameters is None:
             tcp_client_parameters = def_parameters
 
-        port = "tcpcli://" + ":".join(tcp_server_parameters)
+        port = "tcpcli://" + ":".join(tcp_client_parameters)
 
         self.setPort(port, input, format)
 
@@ -199,30 +198,37 @@ class Str2StrController:
         # 3. gps cmd file will take care of msg frequency and msg types
         # To pass parameters to this function use string lists, like ["1002", "1006"] or ["60", "30", "100"]
 
-        print(self.bin_path)
-
         if not self.started:
-            if rtcm3_messages is None:
-                rtcm3_messages = self.rtcm3_messages
 
-            if base_position is None:
-                base_position = self.base_position
+            # update internally saved parameters, if there are arguments passed to this function
+            if rtcm3_messages is not None:
+                self.rtcm3_messages = rtcm3_messages
 
-            if gps_cmd_file is None:
-                gps_cmd_file = self.gps_cmd_file
+            if base_position is not None:
+                if "" not in base_position:
+                    self.base_position = base_position
+                else:
+                    self.base_position = []
+                    print("Can not use this set of base coordinates!")
+                    print("Defaulting to unspecified coordinates. This will severely affect the solution")
 
-            cmd = "/str2str -in " + self.input_stream + " -out " + self.output_stream + " -msg " + ",".join(rtcm3_messages)
+            if gps_cmd_file is not None:
+                self.gps_cmd_file = gps_cmd_file
 
-            if "" in base_position:
-                base_position = []
+            # building the spawn command for str2str
+            cmd = ["/str2str", "-in", self.input_stream, "-out", self.output_stream, "-msg", ",".join(self.rtcm3_messages)]
 
-            if base_position:
-                cmd += " -p " + " ".join(base_position)
+            # if we have additional info, we add it!
+            if self.base_position:
+                cmd.extend(["-p", " ".join(self.base_position)])
 
-            if gps_cmd_file:
-                cmd += " -c " + gps_cmd_file
+            if self.gps_cmd_file:
+                cmd.extend(["-c", self.gps_cmd_file])
 
+            # join the command and add full path to binary
+            cmd = " ".join(cmd)
             cmd = self.bin_path + cmd
+
             print("Starting str2str with")
             print(cmd)
 
