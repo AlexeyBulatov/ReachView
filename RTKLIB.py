@@ -255,8 +255,6 @@ class RTKLIB:
 
         while self.waiting_for_single:
 
-            self.semaphore.acquire()
-
             self.rtkc.getStatus()
 
             if self.rtkc.info["solution_status"] == "single":
@@ -281,13 +279,9 @@ class RTKLIB:
                 if self.enable_led:
                     self.updateLED()
 
-                self.semaphore.release()
-
                 self.readConfigBase()
 
                 return
-
-            self.semaphore.release()
 
             time.sleep(1)
 
@@ -393,22 +387,6 @@ class RTKLIB:
 
         self.stopBase()
         self.startBase()
-
-        # res = self.s2sc.stop() + self.s2sc.start()
-
-        # if res > 1:
-        #     print("Restart successful")
-        # else:
-        #     print("Restart failed")
-
-        # self.saveState()
-
-        # if self.enable_led:
-        #     self.updateLED()
-
-        # self.semaphore.release()
-
-        # return res
 
     def writeConfigRover(self, config):
         # config dict must include config_name field
@@ -787,8 +765,6 @@ class RTKLIB:
 
         while self.server_not_interrupted:
 
-            self.semaphore.acquire()
-
             # update satellite levels
             self.rtkc.getObs()
 
@@ -800,8 +776,6 @@ class RTKLIB:
             self.socketio.emit("satellite broadcast base", self.rtkc.obs_base, namespace = "/test")
             count += 1
 
-            self.semaphore.release()
-
             time.sleep(1)
 
     # this function reads current rtklib status, coordinates and obs count
@@ -809,8 +783,6 @@ class RTKLIB:
         count = 0
 
         while self.server_not_interrupted:
-
-            self.semaphore.acquire()
 
             # update RTKLIB status
             self.rtkc.getStatus()
@@ -838,7 +810,5 @@ class RTKLIB:
                 self.updateLED()
 
             count += 1
-
-            self.semaphore.release()
 
             time.sleep(1)
