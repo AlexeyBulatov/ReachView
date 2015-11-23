@@ -235,14 +235,13 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     </div>
 
     <div data-role="main" class="ui-content">
-        <a href="http://reach.local:5000" target="_blank" id="wifi_link">Wi-Fi setup</a>
-        <script>
-            $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000")
-        </script>
+        <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
+        </div>
         <div class="ui-field-contain" id="update_buttons">
             <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
                 <p>Current version: {{ app_version }}</p>
-                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a>
+                <a href="#" class="ui-btn ui-corner-all ui-btn-inline" id="update_button">Update</a><span class='connect' style="color:red;font-size:12px;"></span>
             </div>
         </div>
     </div>

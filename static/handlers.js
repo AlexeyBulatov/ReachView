@@ -269,11 +269,31 @@ $(document).on("pageinit", "#logs_page", function() {
         socket.emit("delete log", {"name": log_to_delete});
     });
 
-    $(document).on("click", "#update_button", function(e) {
-        console.log("Sending update message");
-        socket.emit("update reachview");
-    });
 });
+
+$(document).on("pageinit", "#settings", function() {
+
+    $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
+
+    $(document).on("click", "#update_button", function(e) {
+        // var i = new Image();
+        // i.onload = doConnectFunction;
+        // i.onerror = doNotConnectFunction;
+        // // CHANGE IMAGE URL TO ANY IMAGE YOU KNOW IS LIVE
+        // i.src = 'http://gfx2.hotmail.com/mail/uxp/w4/m4/pr014/h/s7.png?d=' + escape(Date());
+        var online = navigator.onLine;
+
+        if(onLine){
+            console.log("Sending update message");
+            socket.emit("update reachview");
+        }
+        else
+            $('.connect').text('Internet connection is lost');
+        
+        return false;
+    });
+})
+
 
 // handle base/rover switching
 
