@@ -52,6 +52,7 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
+# Extract git tag as software version
 git_tag_cmd = "git describe --tags"
 app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
