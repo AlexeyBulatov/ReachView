@@ -429,7 +429,7 @@ function showRover(msg, rover_config_order, rover_config_comments){
 
     to_append += '<div class="ui-field-contain fields-field">';
     to_append += '<div class="general-settings"></div>';
-    to_append += '<button class="ui-btn" id="adv-set-btn">Advanced settings</button>';
+    to_append += '<button class="ui-btn ui-corner-all" id="adv-set-btn">Advanced settings</button>';
     to_append += '<div class="advanced-settings" style="display:none">';
 
     // console.log();
