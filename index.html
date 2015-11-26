@@ -236,6 +236,8 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
 
     <div data-role="main" class="ui-content">
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all" style="margin-bottom:1em;">
+            <p>Network: {{ network_status.ssid }}</p>
+            <p>IP: {{ network_status.ip_address }}</p>
             <a href="http://reach.local:5000" class="ui-btn ui-corner-all ui-btn-inline" target="_blank" id="wifi_link">Wi-Fi setup</a>
         </div>
         <div class="ui-field-contain" id="update_buttons">

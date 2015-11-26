@@ -38,6 +38,7 @@ from threading import Thread
 from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
 from subprocess import check_output
+from NetworkTools import getNetworkStatus
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -64,7 +65,7 @@ def index():
     print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version)
+    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
 
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):
