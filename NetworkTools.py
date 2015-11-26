@@ -70,10 +70,4 @@ def getNetworkStatus():
         cmd = " ".join(cmd)
         ip_address = check_output(cmd, shell = True).strip()
 
-    print("mode == " + mode)
-    print("SSID == " + ssid)
-    print("IP == " + ip_address)
-
     return {"mode": mode, "ssid": ssid, "ip_address": ip_address}
-
-getNetworkStatus()
