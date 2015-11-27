@@ -65,9 +65,27 @@ $(document).ready(function () {
     });
 
     createGraph();
+    $('.click').click(function(){
+        rr();
+    });
+
+    // setTimeout(function() {createGraph()}, 2000);
+    
+    // var options = {
+    //     'title':'How Much Pizza I Ate Last Night',
+    //     'height':300,
+    //     animation:{
+    //         "startup": true,
+    //         duration: 1000,
+    //         easing: 'out',
+    //     },
+    // };
+
+    // console.log(createGraph);
+    // google.setOnLoadCallback(function(){drawChart(createGraph)});
 
     console.log("SAT GRAPH DEBUG");
-    console.dir(satellite_graph);
+    // console.dir(satellite_graph);
 
     // ####################### HANDLE REACH MODES, START AND STOP MESSAGES #######################
 
