@@ -37,6 +37,8 @@ from port import changeBaudrateTo230400
 from threading import Thread
 from flask import Flask, render_template, session, request, send_file
 from flask.ext.socketio import SocketIO, emit, disconnect
+from subprocess import check_output
+from NetworkTools import getNetworkStatus
 
 app = Flask(__name__)
 app.template_folder = "."
@@ -51,7 +53,9 @@ changeBaudrateTo230400()
 
 rtk = RTKLIB(socketio)
 
-perform_update = False
+# Extract git tag as software version
+git_tag_cmd = "git describe --tags"
+app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
@@ -61,7 +65,7 @@ def index():
     print("INDEX DEBUG")
     rtk.logm.updateAvailableLogs()
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
-    return render_template("index.html", logs = rtk.logm.available_logs)
+    return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
 
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):

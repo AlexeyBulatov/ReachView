@@ -246,9 +246,18 @@ $(document).on("pageinit", "#config_page", function() {
 $(document).on("pageinit", "#logs_page", function() {
 
     $('.log_string').each(function(){
-
+        var log_state = '';
         var splitLogString = $(this).text().split(',');
-        var log_state = (splitLogString[0].slice(0, 3) == 'rov') ? 'Rover' :  'Base';
+
+        if(splitLogString[0].slice(0, 3) == 'rov')
+            log_state = 'Rover';
+        else if(splitLogString[0].slice(0, 3) == 'ref')
+            log_state = 'Reference';
+        else if(splitLogString[0].slice(0, 3) == 'sol')
+            log_state = 'Solution';
+        else if(splitLogString[0].slice(0, 3) == 'bas')
+            log_state = 'Base';
+
 
         $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
     });
@@ -260,11 +269,31 @@ $(document).on("pageinit", "#logs_page", function() {
         socket.emit("delete log", {"name": log_to_delete});
     });
 
-    $(document).on("click", "#update_button", function(e) {
-        console.log("Sending update message");
-        socket.emit("update reachview");
-    });
 });
+
+$(document).on("pageinit", "#settings", function() {
+
+    $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
+
+    $(document).on("click", "#update_button", function(e) {
+        // var i = new Image();
+        // i.onload = doConnectFunction;
+        // i.onerror = doNotConnectFunction;
+        // // CHANGE IMAGE URL TO ANY IMAGE YOU KNOW IS LIVE
+        // i.src = 'http://gfx2.hotmail.com/mail/uxp/w4/m4/pr014/h/s7.png?d=' + escape(Date());
+        var online = navigator.onLine;
+
+        if(onLine){
+            console.log("Sending update message");
+            socket.emit("update reachview");
+        }
+        else
+            $('.connect').text('Internet connection is lost');
+        
+        return false;
+    });
+})
+
 
 // handle base/rover switching
 
@@ -281,6 +310,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "rover":
             $('#config_select-button').parent().parent().css('display', 'block');
             $('#save_as_button').css('display', 'inline-block');
+            $('#save_button').text('Save');
             $('#hide_buttons_button').css('display', 'inline-block');
             mode = "rover";
             console.log("Launching rover mode");
@@ -291,6 +321,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         case "base":
             $('#config_select-button').parent().parent().css('display', 'none');
             $('#save_as_button').css('display', 'none');
+            $('#save_button').text('Save & Load');
             $('#hide_buttons_button').css('display', 'none');
             mode = "base";
             console.log("Launching base mode");

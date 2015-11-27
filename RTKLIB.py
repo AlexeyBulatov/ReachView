@@ -688,6 +688,14 @@ class RTKLIB:
 
         blink_pattern = []
         delay = 0.5
+        current_rover_solution_status = ""
+
+        status_pattern_dict = {
+            "fix": "green,off",
+            "float": "green,yellow",
+            "single": "cyan,off",
+            "-": "red,off"
+        }
 
         # get wi-fi connection status for the first signal
 
@@ -714,6 +722,7 @@ class RTKLIB:
             else:
                 # we have a stopped base
                 blink_pattern.append("red")
+
         elif self.state == "rover":
 
             blink_pattern.append("blue")
@@ -723,20 +732,13 @@ class RTKLIB:
 
                 blink_pattern.append("green")
 
-                status_pattern_dict = {
-                    "fix": "green,off",
-                    "float": "yellow,off",
-                    "single": "cyan,off",
-                    "-": "read,off"
-                }
-
                 # we need to acquire RtkController in case it's currently updating info dict
                 self.rtkc.semaphore.acquire()
-                current_rover_solutuon_status = self.rtkc.info.get("solution_status", "")
+                current_rover_solution_status = self.rtkc.info.get("solution_status", "")
                 self.rtkc.semaphore.release()
 
                 # if we don't know this status, we just pass
-                blink_pattern.append(status_pattern_dict.get(current_rover_solutuon_status, "off"))
+                blink_pattern.append(status_pattern_dict.get(current_rover_solution_status, "off"))
             else:
                 # we have a stopped rover
                 blink_pattern.append("red")
@@ -748,6 +750,10 @@ class RTKLIB:
 
         # concatenate all that into one big string
         blink_pattern = ",off,".join(blink_pattern) + ",off"
+
+        # if we are have a good rtk solution, override led status with only status signals
+        if current_rover_solution_status == "float" or current_rover_solution_status == "fix":
+            blink_pattern = status_pattern_dict[current_rover_solution_status]
 
         if blink_pattern:
             # check blink_pattern contains something new
