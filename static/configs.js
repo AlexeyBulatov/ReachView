@@ -231,6 +231,33 @@ function checkBaseAntennaCoordinates(){
 	}
 }
 
+function checkBasePosition(){
+	if($('#base_position').val() == 'single'){
+		$('#base_pos_lat_entry').val('');
+		$('#base_pos_lat_entry').attr('type', 'hidden');
+		$('#base_pos_lat_entry').parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$("label[for='base_pos_lat_entry']").text('');
+		$('#base_pos_lon_entry').val('');
+		$('#base_pos_lon_entry').attr('type', 'hidden');
+		$('#base_pos_lon_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+		$('#base_pos_height_entry').val('');
+		$('#base_pos_height_entry').attr('type', 'hidden');
+		$('#base_pos_height_entry').parent().parent().css({'visibility':'hidden', 'border':'none', 'height':'0'});
+	}
+	else{
+		$('#base_pos_lat_entry').val($('#base_pos_lat_entry').val());
+		$('#base_pos_lat_entry').attr('type', 'text');
+		$('#base_pos_lat_entry').parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$("label[for='base_pos_lat_entry']").text('Base latitude');
+		$('#base_pos_lon_entry').val($('#base_pos_lon_entry').val());
+		$('#base_pos_lon_entry').attr('type', 'text');
+		$('#base_pos_lon_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+		$('#base_pos_height_entry').val($('#base_pos_height_entry').val());
+		$('#base_pos_height_entry').attr('type', 'text');
+		$('#base_pos_height_entry').parent().parent().css({'visibility':'visible', 'border':'inherit', 'height':'inherit'});
+	}
+}
+
 function showBase(msg){
 	var to_append = "";
 	var config_key = "";
@@ -362,6 +389,22 @@ function showBase(msg){
 				to_append += '</fieldset>';
         }
         else{
+
+        	if(config_parameter == 'base_pos_lat'){
+        		to_append += '<label for="base_position">Base position</label>';
+        		to_append += '<select name="base_position" id="base_position" class="config_form_field">';
+
+      			if(config_value == ''){
+	        		to_append += '<option value="single" selected>single</option>';
+    	    		to_append += '<option value="llh">llh</option>';
+        		}
+        		else{
+	        		to_append += '<option value="single">single</option>';
+    	    		to_append += '<option value="llh" selected>llh</option>';        			
+        		}
+        		to_append += '</select>';
+        	}
+
         	to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
             to_append += '<input type="text" id="' + config_parameter + '_entry" value="' + config_value + '" data-clear-btn="true">';
         }
@@ -390,6 +433,10 @@ function showBase(msg){
 		$('#rtcm3_out_messages_entry').val($(this).val());
 	});
 
+    $(document).on("change", '#base_position', function() {
+    	checkBasePosition();
+	});
+
 	$(document).on("change", '.additional_general input', function() {
 		
 		$(this).parent().parent().removeClass('additional_general');
@@ -406,6 +453,8 @@ function showBase(msg){
 		defaultStringToInputs('', prefixArr[key]);
 		formString('', prefixArr[key]);
 	}
+
+	checkBasePosition();
 
 	var popup = true;
 

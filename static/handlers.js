@@ -216,21 +216,32 @@ $(document).on("pageinit", "#config_page", function() {
             $('#config-save-load-submit').click(function(){
 
                 if (mode == "base") {
-                    console.log("Request to load new " + mode + " config and restart");
+                    if($('#base_position').val() == 'llh' && ($('#base_pos_lat_entry').val() == '' || $('base_pos_lon_entry').val() == '' || $('base_pos_height_entry').val() == '')){
+                        $( "#popupPos" ).popup( "open");
+                    }
+                    else{
+                        console.log("Request to load new " + mode + " config and restart");
+                        $('#start_button').css('display', 'none');
+                        $('#stop_button').css('display', 'inline-block');
+                        
+                        socket.emit("write and load config " + mode, config_to_send);
+
+                        $( "#popupSave" ).popup( "close");
+                    }
                 }
                 else {
                     console.log('got signal to write config ' + config_name);
                     console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
 
                     config_to_send["config_file_name"] = config_name;
+
+                    $('#start_button').css('display', 'none');
+                    $('#stop_button').css('display', 'inline-block');
+                    
+                    socket.emit("write and load config " + mode, config_to_send);
+
+                    $( "#popupSave" ).popup( "close");
                 }
-
-                $('#start_button').css('display', 'none');
-                $('#stop_button').css('display', 'inline-block');
-                
-                socket.emit("write and load config " + mode, config_to_send);
-
-                $( "#popupSave" ).popup( "close");
             });
 
             if (mode == "base") {
