@@ -22,6 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import pexpect
+from glob import glob
 
 # This module automates working with STR2STR software
 
@@ -35,23 +36,53 @@ class Str2StrController:
             self.bin_path = str2str_path
 
         if gps_cmd_file_path is None:
-            self.gps_cmd_file = "/home/reach/RTKLIB/app/rtkrcv/reach_raw.cmd"
+            self.gps_cmd_file_path = "/home/reach/RTKLIB/app/rtkrcv/"
         else:
-            self.gps_cmd_file = gps_cmd_file_path
+            self.gps_cmd_file_path = gps_cmd_file_path
+
+        self.available_gps_cmd_files = [""]
+        self.updateAvailableCommandFiles()
+
+        if "GPS_5Hz" in self.available_gps_cmd_files:
+            self.gps_cmd_file = "GPS_5Hz"
+        else:
+            self.gps_cmd_file = self.available_gps_cmd_files[0]
 
         self.child = 0
         self.started = False
 
         # port settings are kept as class properties:
-        self.input_stream = ""
-        self.output_stream = ""
+        self.input_stream = "serial://ttyMFD1:230400:8:n:1:off"
+        self.output_stream = "tcpsvr://:9000"
 
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
         self.base_position = [] # lat, lon, height
 
-        self.setSerialStream() # input ublox serial
-        self.setTCPServerStream(input = False) # output tcp server on port 9000
+    def updateAvailableCommandFiles(self):
+        # get all the cmd files from command file path
+
+        # clear previous state
+        self.gps_cmd_file = [""]
+
+        path_length = len(self.gps_cmd_file_path)
+
+        files = glob(self.gps_cmd_file_path + "*.cmd")
+
+        for cmd_file in files:
+            print(cmd_file)
+            self.available_gps_cmd_files.append(cmd_file[path_length:-4])
+
+    def formCommandFileCommentString(self):
+        # form a parseable comment string containing available cmd files
+        # we always have the "empty" option
+        string = ""
+
+        for index, cmd_file in enumerate(self.available_gps_cmd_files):
+            string += str(index) + ":" + cmd_file + ","
+
+        return "(" + string[:-1] + ")"
+
 
     def readConfig(self):
         parameters_to_send = {}
@@ -69,6 +100,13 @@ class Str2StrController:
         parameters_to_send["2"] = {"parameter": "base_pos_lat", "value": base_pos[0], "description": "Base latitude"}
         parameters_to_send["3"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
         parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
+
+        parameters_to_send["5"] = {
+            "parameter": "gps_cmd_file",
+            "value": self.gps_cmd_file,
+            "description": "u-blox configuration file",
+            "comment": self.formCommandFileCommentString()
+        }
 
         print("DEBUG read")
 
@@ -93,101 +131,6 @@ class Str2StrController:
         self.base_position.append(parameters_received["4"]["value"])
 
         self.rtcm3_messages = parameters_received["1"]["value"].split(",")
-
-    def setPort(self, port, input = True, format = "ubx"):
-        if input:
-            self.input_stream = port + "#" + format
-        else:
-            # str2str only supports rtcm3 for output
-            self.output_stream = port + "#" + "rtcm3"
-
-    def setSerialStream(self, serial_parameters = None, input = True, format = "ubx"):
-        # easier way to specify serial port for str2str
-        # serial_parameters is a list of options for our serial device:
-        # 1. serial port
-        # 2. baudrate
-        # 3. byte size
-        # 4. parity bit
-        # 5. stop bit
-        # 6. fctr
-        # default parameters here are Reach standards
-
-        def_parameters = [
-            "ttyMFD1",
-            "230400",
-            "8",
-            "n",
-            "1",
-            "off"
-        ]
-
-        if serial_parameters is None:
-            serial_parameters = def_parameters
-
-        port = "serial://" + ":".join(serial_parameters)
-
-        self.setPort(port, input, format)
-
-    def setTCPClientStream(self, tcp_client_parameters = None, input = True, format = "ubx"):
-        # easier way to specify tcp connection parameters for str2str
-        # tcp client parameters include:
-        # 1. ip address
-        # 2. port number
-
-        def_parameters = [
-            "localhost",
-            "9000"
-        ]
-
-        if tcp_client_parameters is None:
-            tcp_client_parameters = def_parameters
-
-        port = "tcpcli://" + ":".join(tcp_server_parameters)
-
-        self.setPort(port, input, format)
-
-    def setTCPServerStream(self, tcp_server_parameters = None, input = True, format = "ubx"):
-        # tcp server parameters only include the port number:
-        # 1. port number
-
-        def_parameters = [
-            "9000"
-        ]
-
-        if tcp_server_parameters is None:
-            tcp_server_parameters = def_parameters
-
-        port = "tcpsvr://:" + def_parameters[0]
-
-        self.setPort(port, input, format)
-
-    def setNTRIPClientStream(self, ntrip_client_parameters = None, input = True, format = "ubx"):
-        # ntrip client parameters:
-        # 1. user
-        # 2. password
-        # 3. address
-        # 4. port
-        # 5. mount point
-
-        port = "ntrip://" + ntrip_client_parameters[0] + ":"
-        port += ntrip_client_parameters[1] + "@" + ntrip_client_parameters[2] + ":"
-        port += ntrip_client_parameters[3] + "/" + ntrip_client_parameters[4]
-
-        self.setPort(port, input, format)
-
-    def setNTRIPServerStream(self, ntrip_server_parameters = None, input = True, format = "ubx"):
-        # ntrip client parameters:
-        # 1. password
-        # 2. address
-        # 3. port
-        # 4. mount point
-        # 5. str ???
-
-        port = "ntrips://:" + ntrip_client_parameters[0] + "@" + ntrip_client_parameters[1]
-        port += ":" + ntrip_client_parameters[2] + "/" + ntrip_client_parameters[3] + ":"
-        port += ntrip_client_parameters[4]
-
-        self.setPort(port, input, format)
 
     def start(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
         # when we start str2str we also have 3 important optional parameters
@@ -259,5 +202,3 @@ class Str2StrController:
 
         # str2str already stopped
         return 2
-
-
