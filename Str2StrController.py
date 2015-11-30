@@ -52,8 +52,8 @@ class Str2StrController:
         self.started = False
 
         # port settings are kept as class properties:
-        self.input_stream = "serial://ttyMFD1:230400:8:n:1:off"
-        self.output_stream = "tcpsvr://:9000"
+        self.input_stream = "serial://ttyMFD1:230400:8:n:1:off#ubx"
+        self.output_stream = "tcpsvr://:9000#rtcm3"
 
         # Reach defaults for base position and rtcm3 messages:
         self.rtcm3_messages = ["1002", "1006", "1013", "1019"]
@@ -129,6 +129,12 @@ class Str2StrController:
         self.base_position.append(parameters_received["2"]["value"])
         self.base_position.append(parameters_received["3"]["value"])
         self.base_position.append(parameters_received["4"]["value"])
+
+        if parameters_received["5"]["value"]:
+            # if its not empty, we use full path
+            self.gps_cmd_file = self.gps_cmd_file_path + parameters_received["5"]["value"] + ".cmd"
+        else:
+            self.gps_cmd_file = ""
 
         self.rtcm3_messages = parameters_received["1"]["value"].split(",")
 

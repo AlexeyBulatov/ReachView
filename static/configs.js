@@ -240,6 +240,7 @@ function showBase(msg){
     var config_comment = "";
     var input_title = "";
     var issetInput = "";
+    var splitArr = "";
 	var prefixArr = ['out'];
 	var typeArr = ['serial', 'file', 'tcpsvr', 'tcpcli', 'ntripcli', 'ntripsvr', 'ftp', 'http'];
     var formatArr = ['rtcm2', 'rtcm3', 'nov', 'oem3', 'ubx', 'ss2', 'hemis', 'stq', 'javad', 'nvs', 'binex'];
@@ -322,6 +323,24 @@ function showBase(msg){
 
         	to_append += '<div>';
         }
+		else if(config_parameter == 'gps_cmd_file'){
+    		splitArr = config_comment.split(',');
+
+    		to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
+    		to_append += '<select name="select-native-1" id="gps_cmd_file_entry" class="config_form_field top_input">';
+
+    		$.each(splitArr, function(index, value){
+                value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
+                innerSplit = value.split(':');
+
+                if(innerSplit['1'] == config_value)
+                    to_append += '<option value="' + innerSplit['1'] + '" selected="selected">' + innerSplit['1'] + '</option>';
+                else
+                	to_append += '<option value="' + innerSplit['1'] + '">' + innerSplit['1'] + '</option>';
+            })
+            
+            to_append += '</select>';
+    	}
         else if(config_parameter == 'rtcm3_out_messages'){
         		var selectedOptionArr = config_value.split(',');
 
