@@ -214,6 +214,14 @@ class RTKLIB:
         # this launchBase() function exists to change the state of RTKLIB instance
         # and to make the process for base and rover modes similar
 
+        # launch Rover as proxy, start it
+
+        print("Launching base mode...")
+        print("For this need to launch and start rover in proxy mode")
+
+        self.launchRover("reach_base_default.conf")
+        self.startRover()
+
         self.semaphore.acquire()
 
         self.state = "base"
@@ -232,6 +240,9 @@ class RTKLIB:
         # all the configuration goes to startBase() function
         # this shutdownBase() function exists to change the state of RTKLIB instance
         # and to make the process for base and rover modes similar
+
+        self.stopRover()
+        self.shutdownRover()
 
         self.stopBase()
 
@@ -254,17 +265,14 @@ class RTKLIB:
 
         print("Attempting to start str2str...")
 
-        if not self.rtkc.started:
-            res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
+        res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
 
-            if res < 0:
-                print("str2str start failed")
-            elif res == 1:
-                print("str2str start successful")
-            elif res == 2:
-                print("str2str already started")
-        else:
-            print("Can't start str2str with rtkrcv still running!!!!")
+        if res < 0:
+            print("str2str start failed")
+        elif res == 1:
+            print("str2str start successful")
+        elif res == 2:
+            print("str2str already started")
 
         self.saveState()
 
@@ -473,7 +481,7 @@ class RTKLIB:
 
         # send available configs to the browser
         self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-        
+
         print(self.conm.available_configs)
 
     def saveState(self):

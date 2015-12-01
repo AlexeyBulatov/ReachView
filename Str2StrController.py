@@ -46,13 +46,14 @@ class Str2StrController:
         if "GPS_5Hz" in self.available_gps_cmd_files:
             self.gps_cmd_file = "GPS_5Hz"
         else:
-            self.gps_cmd_file = self.available_gps_cmd_files[0]
+            if self.available_gps_cmd_files:
+                self.gps_cmd_file = self.available_gps_cmd_files[0]
 
         self.child = 0
         self.started = False
 
         # port settings are kept as class properties:
-        self.input_stream = "serial://ttyMFD1:230400:8:n:1:off#ubx"
+        self.input_stream = "tcpcli://localhost:3000#ubx"
         self.output_stream = "tcpsvr://:9000#rtcm3"
 
         # Reach defaults for base position and rtcm3 messages:
@@ -108,16 +109,9 @@ class Str2StrController:
             "comment": self.formCommandFileCommentString()
         }
 
-        print("DEBUG read")
-
-        print(parameters_to_send)
         return parameters_to_send
 
     def writeConfig(self, parameters_received):
-
-        print("DEBUG write")
-
-        print(parameters_received)
 
         coordinate_filled_flag = 3
         base_pos = []
