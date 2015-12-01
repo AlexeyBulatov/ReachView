@@ -72,10 +72,13 @@ class RTKLIB:
         self.satellite_thread = None
         self.coordinate_thread = None
 
+        # we wait for single solution in base mode with these
+        self.waiting_for_single = False
+        self.base_single_thread = None
+
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         self.loadState()
-
 
     def launchRover(self, config_name = None):
         # config_name may be a name, or a full path
@@ -219,7 +222,7 @@ class RTKLIB:
         print("Launching base mode...")
         print("For this need to launch and start rover in proxy mode")
 
-        self.launchRover("reach_base_default.conf")
+        self.launchRover(self.conm.default_base_config)
         self.startRover()
 
         self.semaphore.acquire()
@@ -241,10 +244,10 @@ class RTKLIB:
         # this shutdownBase() function exists to change the state of RTKLIB instance
         # and to make the process for base and rover modes similar
 
+        self.stopBase()
+
         self.stopRover()
         self.shutdownRover()
-
-        self.stopBase()
 
         self.semaphore.acquire()
 
@@ -259,20 +262,69 @@ class RTKLIB:
 
         self.semaphore.release()
 
-    def startBase(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
+    def getBaseSingleCoordinates(self):
+        # monitors status until we get the single coordinates
+        # or until we no longer require it
+
+        while self.waiting_for_single:
+
+            time.sleep(1)
+
+            self.rtkc.getStatus()
+
+            if self.rtkc.info["solution_status"] == "single":
+                # we got our single status
+                # extract the coordinates and start str2str
+
+                current_position = []
+                current_position.append(self.rtkc.info["lat"])
+                current_position.append(self.rtkc.info["lon"])
+                current_position.append(self.rtkc.info["height"])
+
+                print("Got single solution. Starting str2str with " + " ".join(current_position) + " as base coordinates")
+
+                self.waiting_for_single = False
+
+                self.s2sc.base_position = current_position
+
+                self.startBase()
+
+                self.readConfigBase()
+
+    def startBase(self):
 
         self.semaphore.acquire()
 
         print("Attempting to start str2str...")
 
-        res = self.s2sc.start(rtcm3_messages, base_position, gps_cmd_file)
+        if not self.s2sc.base_position:
+            # we did not have base coordinates configured
+            # that means we run a separate thread,
+            # waiting for proxy rover's single solution
+            # when we get it, we start the s2sc bin with
+            # single coordinates we extracted
 
-        if res < 0:
-            print("str2str start failed")
-        elif res == 1:
-            print("str2str start successful")
-        elif res == 2:
-            print("str2str already started")
+            print("Base started in single mode...Waiting for single solution to grab the coordinates...")
+
+            self.waiting_for_single = True
+
+            if self.base_single_thread is None:
+                self.base_single_thread = Thread(target = self.getBaseSingleCoordinates)
+                self.base_single_thread.start()
+
+        else:
+            # coordinates are set, we are good to go
+
+            print("Valid base position provided")
+
+            res = self.s2sc.start()
+
+            if res < 0:
+                print("str2str start failed")
+            elif res == 1:
+                print("str2str start successful")
+            elif res == 2:
+                print("str2str already started")
 
         self.saveState()
 
@@ -281,13 +333,19 @@ class RTKLIB:
 
         self.semaphore.release()
 
-        return res
-
     def stopBase(self):
 
         self.semaphore.acquire()
 
         print("Attempting to stop str2str...")
+
+        # finish the thread waiting for single coordinates
+        # if it's alive at the moment
+
+        if self.base_single_thread is not None:
+            self.waiting_for_single = False
+            self.base_single_thread.join()
+            self.base_single_thread = None
 
         res = self.s2sc.stop()
 
@@ -327,21 +385,10 @@ class RTKLIB:
 
         print("Restarting str2str...")
 
-        res = self.s2sc.stop() + self.s2sc.start()
-
-        if res > 1:
-            print("Restart successful")
-        else:
-            print("Restart failed")
-
-        self.saveState()
-
-        if self.enable_led:
-            self.updateLED()
-
         self.semaphore.release()
 
-        return res
+        self.stopBase()
+        self.startBase()
 
     def writeConfigRover(self, config):
         # config dict must include config_name field

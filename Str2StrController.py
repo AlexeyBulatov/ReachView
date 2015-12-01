@@ -71,7 +71,6 @@ class Str2StrController:
         files = glob(self.gps_cmd_file_path + "*.cmd")
 
         for cmd_file in files:
-            print(cmd_file)
             self.available_gps_cmd_files.append(cmd_file[path_length:-4])
 
     def formCommandFileCommentString(self):
@@ -120,9 +119,15 @@ class Str2StrController:
 
         # llh
         self.base_position = []
+
         self.base_position.append(parameters_received["2"]["value"])
         self.base_position.append(parameters_received["3"]["value"])
         self.base_position.append(parameters_received["4"]["value"])
+
+        # check for empty coordinate values
+        # if at least one is empty, the list should be empty too
+        if len(filter(bool, self.base_position)) != len(self.base_position):
+            self.base_position = []
 
         if parameters_received["5"]["value"]:
             # if its not empty, we use full path

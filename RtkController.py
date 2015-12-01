@@ -86,9 +86,9 @@ class RtkController:
             else:
                 spawn_command = self.bin_path + "/rtkrcv -o " + self.config_path + config_name
 
-            self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
-
             print('Launching rtklib with: "' + spawn_command + '"')
+
+            self.child = pexpect.spawn(spawn_command, cwd = self.bin_path, echo = False)
 
             if self.expectAnswer("spawn") < 0:
                 self.semaphore.release()

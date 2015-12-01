@@ -170,7 +170,7 @@ $(document).on("pageinit", "#config_page", function() {
         if($(this).attr('id') == 'save_as_button'){
             $(".hidden_list").slideUp('fast');
             $( "#popupLogin" ).popup( "open");
-            
+
             checkConfTitle();
 
             $('#config_select_hidden').change(function(){
@@ -223,7 +223,7 @@ $(document).on("pageinit", "#config_page", function() {
                         console.log("Request to load new " + mode + " config and restart");
                         $('#start_button').css('display', 'none');
                         $('#stop_button').css('display', 'inline-block');
-                        
+
                         socket.emit("write and load config " + mode, config_to_send);
 
                         $( "#popupSave" ).popup( "close");
@@ -237,7 +237,7 @@ $(document).on("pageinit", "#config_page", function() {
 
                     $('#start_button').css('display', 'none');
                     $('#stop_button').css('display', 'inline-block');
-                    
+
                     socket.emit("write and load config " + mode, config_to_send);
 
                     $( "#popupSave" ).popup( "close");
@@ -300,7 +300,7 @@ $(document).on("pageinit", "#settings", function() {
         }
         else
             $('.connect').text('Internet connection is lost');
-        
+
         return false;
     });
 })
@@ -339,7 +339,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             socket.emit("shutdown rover");
             socket.emit("launch base");
         break;
-    }       
+    }
 
     cleanStatus(mode, status);
 

@@ -195,8 +195,7 @@ class ConfigManager:
             self.config_path = config_path
 
         self.default_rover_config = "reach_single_default.conf"
-
-        self.default_config_path = "/home/reach/ReachView/rtklib_configs/"
+        self.default_base_config = "reach_base_default.conf"
 
         self.available_configs = []
         self.updateAvailableConfigs()
