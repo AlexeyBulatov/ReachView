@@ -212,17 +212,13 @@ class RTKLIB:
         return res
 
     def launchBase(self):
-        # due to the way str2str works, we can't really separate launch and start
-        # all the configuration goes to startBase() function
-        # this launchBase() function exists to change the state of RTKLIB instance
-        # and to make the process for base and rover modes similar
-
         # launch Rover as proxy, start it
 
         print("Launching base mode...")
         print("For this need to launch and start rover in proxy mode")
 
         self.launchRover(self.conm.default_base_config)
+        print("DEBUG proxy rover launched")
         self.startRover()
 
         self.semaphore.acquire()
@@ -239,10 +235,6 @@ class RTKLIB:
         self.semaphore.release()
 
     def shutdownBase(self):
-        # due to the way str2str works, we can't really separate launch and start
-        # all the configuration goes to startBase() function
-        # this shutdownBase() function exists to change the state of RTKLIB instance
-        # and to make the process for base and rover modes similar
 
         self.stopBase()
 
@@ -268,13 +260,13 @@ class RTKLIB:
 
         while self.waiting_for_single:
 
-            time.sleep(1)
-
             self.rtkc.getStatus()
 
             if self.rtkc.info["solution_status"] == "single":
                 # we got our single status
                 # extract the coordinates and start str2str
+
+                self.semaphore.acquire()
 
                 current_position = []
                 current_position.append(self.rtkc.info["lat"])
@@ -283,13 +275,30 @@ class RTKLIB:
 
                 print("Got single solution. Starting str2str with " + " ".join(current_position) + " as base coordinates")
 
-                self.waiting_for_single = False
-
                 self.s2sc.base_position = current_position
 
-                self.startBase()
+                res = self.s2sc.start()
 
-                self.readConfigBase()
+                if res < 0:
+                    print("str2str start failed")
+                elif res == 1:
+                    print("str2str start successful")
+                elif res == 2:
+                    print("str2str already started")
+
+                self.saveState()
+
+                if self.enable_led:
+                    self.updateLED()
+
+                self.waiting_for_single = False
+
+                self.base_single_thread = None
+
+                return self.readConfigBase()
+
+            # don't check the status too often
+            time.sleep(1)
 
     def startBase(self):
 
@@ -308,14 +317,28 @@ class RTKLIB:
 
             self.waiting_for_single = True
 
+            print("Debug!!! the thread is " + str(self.base_single_thread))
+
             if self.base_single_thread is None:
                 self.base_single_thread = Thread(target = self.getBaseSingleCoordinates)
                 self.base_single_thread.start()
+
+            print("Debug!!! the thread is " + str(self.base_single_thread))
 
         else:
             # coordinates are set, we are good to go
 
             print("Valid base position provided")
+
+            print("Debug!!! the thread is " + str(self.base_single_thread))
+
+            self.waiting_for_single = False
+
+            if self.base_single_thread is not None:
+                self.base_single_thread = None
+                self.base_single_thread.join()
+
+            print("Debug2!!! the thread is " + str(self.base_single_thread))
 
             res = self.s2sc.start()
 
@@ -342,8 +365,9 @@ class RTKLIB:
         # finish the thread waiting for single coordinates
         # if it's alive at the moment
 
+        self.waiting_for_single = False
+
         if self.base_single_thread is not None:
-            self.waiting_for_single = False
             self.base_single_thread.join()
             self.base_single_thread = None
 
@@ -367,19 +391,22 @@ class RTKLIB:
 
     def readConfigBase(self):
 
-        self.semaphore.acquire()
+        # self.semaphore.acquire()
 
         print("Got signal to read base config")
 
         self.socketio.emit("current config base", self.s2sc.readConfig(), namespace = "/test")
 
-        self.semaphore.release()
+        # self.semaphore.release()
 
     def writeConfigBase(self, config):
 
         self.semaphore.acquire()
 
         print("Got signal to write base config")
+
+        print("DEBUG config to write:")
+        print(config)
 
         self.s2sc.writeConfig(config)
 
@@ -466,9 +493,9 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
-        print("Got signal to read the rover config")
+        print("Got signal to read the rover config " + str(config_file))
 
-        print("Sending rover config " + config_file)
+        print("Sending rover config " + str(config_file))
 
         # read from file
         self.conm.readConfig(config_file)
@@ -563,8 +590,8 @@ class RTKLIB:
             "gps_cmd_file": self.s2sc.gps_cmd_file
         }
 
-        print("DEBUG saving state")
-        print(str(state))
+        # print("DEBUG saving state")
+        # print(str(state))
 
         with open(self.state_file, "w") as f:
             json.dump(state, f, sort_keys = True, indent = 4)

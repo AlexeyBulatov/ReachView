@@ -180,6 +180,7 @@ if __name__ == "__main__":
         # clean up broadcast and blink threads
         rtk.server_not_interrupted = False
         rtk.led.blinker_not_interrupted = False
+        rtk.waiting_for_single = False
 
         if rtk.coordinate_thread is not None:
             rtk.coordinate_thread.join()
@@ -189,5 +190,8 @@ if __name__ == "__main__":
 
         if rtk.led.blinker_thread is not None:
             rtk.led.blinker_thread.join()
+
+        if rtk.base_single_thread is not None:
+            rtk.base_single_thread.join()
 
 

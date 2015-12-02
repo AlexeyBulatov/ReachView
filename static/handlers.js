@@ -327,6 +327,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
             console.log("Launching rover mode");
             socket.emit("shutdown base")
             socket.emit("launch rover");
+            $("#config_select").val("reach_single_default.conf");
             to_send["config_file_name"] = $("#config_select").val();
             break;
         case "base":

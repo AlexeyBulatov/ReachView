@@ -103,7 +103,7 @@ class Str2StrController:
 
         parameters_to_send["5"] = {
             "parameter": "gps_cmd_file",
-            "value": self.gps_cmd_file,
+            "value": self.gps_cmd_file[len(self.gps_cmd_file_path):-4],
             "description": "u-blox configuration file",
             "comment": self.formCommandFileCommentString()
         }
@@ -126,7 +126,7 @@ class Str2StrController:
 
         # check for empty coordinate values
         # if at least one is empty, the list should be empty too
-        if len(filter(bool, self.base_position)) != len(self.base_position):
+        if len(filter(bool, self.base_position)) != 3:
             self.base_position = []
 
         if parameters_received["5"]["value"]:
