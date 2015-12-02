@@ -284,7 +284,7 @@ $(document).on("pageinit", "#settings", function() {
 
             var intervalID = setInterval(function(){--updateStatus;$('.load_update').html('<img src="static/images/loader.gif" style="height:54px;position:relative;top:-5px"><span style="position:relative;top:-26px;left:-36px;color:red">' + updateStatus + '</span>');}, 1000);
             
-            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*5);
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60);
             socket.emit("update reachview");
         }
         else

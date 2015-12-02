@@ -58,10 +58,6 @@ rtk = RTKLIB(socketio)
 git_tag_cmd = "git describe --tags"
 app_version = check_output([git_tag_cmd], shell = True, cwd = "/home/reach/ReachView")
 
-# we are freshly updated, send this!
-if len(sys.argv) > 1:
-    socketio.emit("updated", {"new_version": app_version}, namespace = "/test")
-
 # at this point we are ready to start rtk in 2 possible ways: rover and base
 # we choose what to do by getting messages from the browser
 
@@ -81,6 +77,11 @@ def downloadLog(log_name):
 @socketio.on("connect", namespace="/test")
 def testConnect():
     print("Browser client connected")
+
+    # we are freshly updated, send this!
+    if len(sys.argv) > 1:
+        socketio.emit("updated", {"new_version": app_version}, namespace = "/test")
+
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
@@ -179,6 +180,7 @@ def updateReachView():
 if __name__ == "__main__":
     try:
         socketio.run(app, host = "0.0.0.0", port = 80)
+
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
 
