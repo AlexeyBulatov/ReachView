@@ -132,10 +132,6 @@ $(document).ready(function () {
         }
 
     });
-    
-    socket.on("updated", function(msg) {
-        alert(msg.new_version);
-    })
 
     socket.on("available configs", function(msg) {
         var select_options = $("#config_select");

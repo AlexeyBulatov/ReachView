@@ -277,16 +277,17 @@ $(document).on("pageinit", "#settings", function() {
 
     $(document).on("click", "#update_button", function(e) {
         var online = navigator.onLine;
-        var updateStatus = 60;
+        var updateStatus = 120;
 
         if(online){
             console.log("Sending update message");
 
             var intervalID = setInterval(function(){--updateStatus;$('.load_update').html('<img src="static/images/loader.gif" style="height:54px;position:relative;top:-5px"><span style="position:relative;top:-26px;left:-36px;color:red">' + updateStatus + '</span>');}, 1000);
             
-            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60);
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
-            socket.disconnect('unauthorized');
+
+            // while()
         }
         else
             $('.connect').text('Internet connection is lost');
