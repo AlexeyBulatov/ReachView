@@ -286,7 +286,7 @@ $(document).on("pageinit", "#settings", function() {
             
             setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60);
             socket.emit("update reachview");
-            socket.disconnect();
+            socket.disconnect('unauthorized');
         }
         else
             $('.connect').text('Internet connection is lost');
