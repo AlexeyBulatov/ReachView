@@ -322,7 +322,7 @@ class RtkController:
 
         self.semaphore.release()
 
-        return 1
+        return self.info
 
     def getObs(self):
 

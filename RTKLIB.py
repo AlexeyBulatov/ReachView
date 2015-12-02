@@ -115,32 +115,37 @@ class RTKLIB:
 
     def shutdownRover(self):
 
-        self.stopRover()
+        if self.state == "rover":
 
-        self.semaphore.acquire()
-        print("Attempting rtkrcv shutdown")
+            self.stopRover()
 
-        res = self.rtkc.shutdown()
+            self.semaphore.acquire()
+            print("Attempting rtkrcv shutdown")
 
-        if res < 0:
-            print("rtkrcv shutdown failed")
-        elif res == 1:
-            print("rtkrcv shutdown successful")
-            self.state = "inactive"
-        elif res == 2:
-            print("rtkrcv already shutdown")
-            self.state = "inactive"
+            res = self.rtkc.shutdown()
 
-        self.saveState()
+            if res < 0:
+                print("rtkrcv shutdown failed")
+            elif res == 1:
+                print("rtkrcv shutdown successful")
+                self.state = "inactive"
+            elif res == 2:
+                print("rtkrcv already shutdown")
+                self.state = "inactive"
 
-        if self.enable_led:
-            self.updateLED()
+            self.saveState()
 
-        print("Rover mode shutdown")
+            if self.enable_led:
+                self.updateLED()
 
-        self.semaphore.release()
+            print("Rover mode shutdown")
 
-        return res
+            self.semaphore.release()
+
+            return res
+
+        else:
+            print("In base mode already")
 
     def startRover(self):
 
@@ -180,8 +185,9 @@ class RTKLIB:
 
     def stopRover(self):
 
-        self.semaphore.acquire()
         print("Attempting to stop RTKLIB...")
+
+        self.semaphore.acquire()
 
         res = self.rtkc.stop()
 
@@ -238,8 +244,9 @@ class RTKLIB:
 
         self.stopBase()
 
-        self.stopRover()
-        self.shutdownRover()
+        if self.state == "base":
+            self.stopRover()
+            self.shutdownRover()
 
         self.semaphore.acquire()
 
@@ -260,22 +267,24 @@ class RTKLIB:
 
         while self.waiting_for_single:
 
-            self.rtkc.getStatus()
+            info = self.rtkc.getStatus()
 
-            if self.rtkc.info["solution_status"] == "single":
+            if info["solution_status"] == "single":
                 # we got our single status
                 # extract the coordinates and start str2str
 
-                self.semaphore.acquire()
+                # self.semaphore.acquire()
 
                 current_position = []
-                current_position.append(self.rtkc.info["lat"])
-                current_position.append(self.rtkc.info["lon"])
-                current_position.append(self.rtkc.info["height"])
+                current_position.append(info["lat"])
+                current_position.append(info["lon"])
+                current_position.append(info["height"])
 
                 print("Got single solution. Starting str2str with " + " ".join(current_position) + " as base coordinates")
 
                 self.s2sc.base_position = current_position
+
+                print("Starting str2str from base_single_thread...")
 
                 res = self.s2sc.start()
 
@@ -295,6 +304,8 @@ class RTKLIB:
 
                 self.base_single_thread = None
 
+                # self.semaphore.release()
+
                 return self.readConfigBase()
 
             # don't check the status too often
@@ -302,9 +313,9 @@ class RTKLIB:
 
     def startBase(self):
 
-        self.semaphore.acquire()
-
         print("Attempting to start str2str...")
+
+        self.semaphore.acquire()
 
         if not self.s2sc.base_position:
             # we did not have base coordinates configured
@@ -356,11 +367,13 @@ class RTKLIB:
 
         self.semaphore.release()
 
+        print("DEBUG + released lock on startBase")
+
     def stopBase(self):
 
-        self.semaphore.acquire()
-
         print("Attempting to stop str2str...")
+
+        self.semaphore.acquire()
 
         # finish the thread waiting for single coordinates
         # if it's alive at the moment
@@ -386,6 +399,8 @@ class RTKLIB:
             self.updateLED()
 
         self.semaphore.release()
+
+        print("DEBUG + released lock on stopBase")
 
         return res
 
@@ -820,6 +835,19 @@ class RTKLIB:
 
             # update RTKLIB status
             self.rtkc.getStatus()
+
+            if self.state == "base":
+                self.rtkc.info["positioning_mode"] = "base"
+
+                if self.waiting_for_single == True:
+                    # Base has been started, but is looking for current single coordinate
+                    self.rtkc.info["solution_status"] = "waiting for single solution"
+                else:
+                    # Base is not looking for a single coordinate. Is it started?
+                    if self.s2sc.started == True:
+                        self.rtkc.info["solution_status"] = "started"
+                    else:
+                        self.rtkc.info["solution_status"] = "stopped"
 
             if count % 10 == 0:
                 print("Sending RTKLIB status select information:")
