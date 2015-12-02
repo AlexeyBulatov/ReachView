@@ -78,6 +78,10 @@ def testConnect():
     print("Browser client connected")
     rtk.sendState()
 
+    # we are freshly updated, send this!
+    if len(sys.argv) > 1:
+        socketio.emit("updated", {"new_version": app_version}, namespace = "/test")
+
 @socketio.on("disconnect", namespace="/test")
 def testDisconnect():
     print("Browser client disconnected")
