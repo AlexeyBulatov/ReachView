@@ -173,7 +173,7 @@ def resetConfig(json):
 def updateReachView():
     print("Got signal to update!!!")
     print("Server interrupted by user to update!!")
-    rtk.shutdown()
+    # rtk.shutdown()
     socketio.server.stop()
     os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
 
