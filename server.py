@@ -174,7 +174,8 @@ def updateReachView():
     print("Got signal to update!!!")
     print("Server interrupted by user to update!!")
     # rtk.shutdown()
-    socketio.server.stop()
+    socketio.disconnect()
+    # socketio.server.stop()
     os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
 
 if __name__ == "__main__":
