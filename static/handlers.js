@@ -287,16 +287,18 @@ $(document).on("pageinit", "#settings", function() {
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     $(document).on("click", "#update_button", function(e) {
-        // var i = new Image();
-        // i.onload = doConnectFunction;
-        // i.onerror = doNotConnectFunction;
-        // // CHANGE IMAGE URL TO ANY IMAGE YOU KNOW IS LIVE
-        // i.src = 'http://gfx2.hotmail.com/mail/uxp/w4/m4/pr014/h/s7.png?d=' + escape(Date());
         var online = navigator.onLine;
+        var updateStatus = 120;
 
-        if(onLine){
+        if(online){
             console.log("Sending update message");
+
+            var intervalID = setInterval(function(){--updateStatus;$('.load_update').html('<img src="static/images/loader.gif" style="height:54px;position:relative;top:-5px"><span style="position:relative;top:-26px;left:-36px;color:red">' + updateStatus + '</span>');}, 1000);
+            
+            setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:10px;">Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
+
+            // while()
         }
         else
             $('.connect').text('Internet connection is lost');

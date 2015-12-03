@@ -30,6 +30,7 @@ import time
 import json
 import os
 import signal
+import sys
 
 from RTKLIB import RTKLIB
 from port import changeBaudrateTo230400
@@ -76,6 +77,11 @@ def downloadLog(log_name):
 @socketio.on("connect", namespace="/test")
 def testConnect():
     print("Browser client connected")
+
+    # we are freshly updated, send this!
+    if len(sys.argv) > 1:
+        socketio.emit("updated", {"new_version": app_version}, namespace = "/test")
+
     rtk.sendState()
 
 @socketio.on("disconnect", namespace="/test")
@@ -167,13 +173,15 @@ def resetConfig(json):
 def updateReachView():
     print("Got signal to update!!!")
     print("Server interrupted by user to update!!")
-    rtk.shutdown()
-    socketio.server.stop()
+    # rtk.shutdown()
+    socketio.disconnect()
+    # socketio.server.stop()
     os.execl("/home/reach/ReachView/update.sh", "", str(os.getpid()))
 
 if __name__ == "__main__":
     try:
         socketio.run(app, host = "0.0.0.0", port = 80)
+
     except KeyboardInterrupt:
         print("Server interrupted by user!!")
 
