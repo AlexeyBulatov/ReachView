@@ -218,7 +218,10 @@ class ConfigManager:
                 self.available_configs.append(conf[path_length:])
 
         # we do not show the base config
-        self.available_configs.remove(self.default_base_config)
+        try:
+            self.available_configs.remove(self.default_base_config)
+        except:
+            pass
 
     def readConfig(self, from_file):
 
