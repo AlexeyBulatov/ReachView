@@ -115,7 +115,7 @@ class RTKLIB:
 
     def shutdownRover(self):
 
-        if self.state == "rover":
+        if self.state == "rover" or self.state == "inactive":
 
             self.stopRover()
 
