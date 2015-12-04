@@ -306,7 +306,7 @@ class ConfigManager:
                 conf.items[item_number] = item
 
                 # rewrite the file again:
-                self.writeConfig(to_file, conf)
+                self.writeConfig(to_file, conf.items)
                 return 1
                 break
 

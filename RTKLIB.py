@@ -438,6 +438,10 @@ class RTKLIB:
 
         self.s2sc.writeConfig(config)
 
+        print("DEBUG WRITING CMD FILE CHANGES TO base config")
+        cmdfile1_item = config["5"]
+        self.conm.writeItemToConfig(cmdfile1_item, self.conm.default_base_config)
+
         print("Restarting str2str...")
 
         self.semaphore.release()
