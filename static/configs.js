@@ -350,11 +350,11 @@ function showBase(msg){
 
         	to_append += '<div>';
         }
-		else if(config_parameter == 'gps_cmd_file'){
+		else if(config_parameter == 'file-cmdfile1'){
     		splitArr = config_comment.split(',');
 
     		to_append += '<label for="' + config_parameter + '_entry">' + input_title + '</label>';
-    		to_append += '<select name="select-native-1" id="gps_cmd_file_entry" class="config_form_field top_input">';
+    		to_append += '<select name="select-native-1" id="file-cmdfile1_entry" class="config_form_field top_input">';
 
     		$.each(splitArr, function(index, value){
                 value = value.replace(/[# (]+/g,'').replace(/[)]+/g,'');
@@ -415,6 +415,14 @@ function showBase(msg){
     to_append += '</div>';
 
     form_div.html(to_append).trigger("create");
+
+    $('#file-cmdfile1_entry option').each(function(){
+		var cutOption = $(this).val().slice(3,-4);
+		$(this).text(cutOption);
+	});
+
+	var cutSelectTitle1 = $('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text().slice(3,-4);
+	$('#file-cmdfile1_entry-button').find('span.config_form_field:first-child').text(cutSelectTitle1);
 
     $(document).on("change", '.top_input', function() {
 		var method = $(this).attr('id').substr(0, 3);

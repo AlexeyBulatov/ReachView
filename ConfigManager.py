@@ -23,7 +23,7 @@
 
 from glob import glob
 from os import remove, path
-from shutil import copy
+from shutil import copy, Error
 
 # This module aims to make working with RTKLIB configs easier
 # It allows to parse RTKLIB .conf files to python dictionaries and backwards
@@ -259,7 +259,7 @@ class ConfigManager:
     def resetConfigToDefault(self, config_name):
         # try to copy default config to the working configs directory
         if "/" not in config_name:
-            default_config_value = self.default_config_path + config_name
+            default_config_value = self.config_path + config_name
         else:
             default_config_value = config_name
 
@@ -267,6 +267,8 @@ class ConfigManager:
             copy(default_config_value, self.config_path)
         except IOError, e:
             print("Error resetting config " + config_name + " to default. Error: " + e.filename + " - " + e.strerror)
+        except Error as e:
+            print('Error: %s' % e)
 
     def deleteConfig(self, config_name):
         # try to delete config if it exists

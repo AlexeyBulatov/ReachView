@@ -438,15 +438,19 @@ class RTKLIB:
 
         self.s2sc.writeConfig(config)
 
-        print("DEBUG WRITING CMD FILE CHANGES TO base config")
+        print("DEBUG WRITING CMD FILE CHANGES TO base config...")
         cmdfile1_item = config["5"]
-        self.conm.writeItemToConfig(cmdfile1_item, self.conm.default_base_config)
-
-        print("Restarting str2str...")
+        print(str(self.conm.writeItemToConfig(cmdfile1_item, self.conm.default_base_config)))
 
         self.semaphore.release()
 
+        print("stopping str2str...")
         self.stopBase()
+
+        print("reloading proxy rover with changed config...")
+        res = self.loadConfigRover(self.conm.default_base_config)
+
+        print("Restarting str2str...")
         self.startBase()
 
     def writeConfigRover(self, config):

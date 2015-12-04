@@ -163,8 +163,8 @@ class Str2StrController:
             if base_position:
                 cmd += " -p " + " ".join(base_position)
 
-            if gps_cmd_file:
-                cmd += " -c " + gps_cmd_file
+            # if gps_cmd_file:
+                # cmd += " -c " + gps_cmd_file
 
             cmd = self.bin_path + cmd
             print("Starting str2str with")

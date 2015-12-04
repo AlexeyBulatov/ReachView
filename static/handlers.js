@@ -134,15 +134,13 @@ $(document).on("pageinit", "#config_page", function() {
         });
     });
 
-    $(document).on("click", ".save_configs_button", function(e) {
+    function GetConfigToSend(){
         var config_to_send = {};
         var current_id = "";
         var current_parameter = "";
         var current_value = "";
         var current_description = "";
         var current_comment = "";
-
-        var mode = $("input[name=radio_base_rover]:checked").val();
 
         $('input[id*="_entry"], select[id*="_entry"]').each(function(i, obj){
             if(($(this).attr('id') != 'outstr-type_entry') && ($(this).attr('id') != 'inpstr-type_entry')){
@@ -167,88 +165,100 @@ $(document).on("pageinit", "#config_page", function() {
             }
         });
 
-        if($(this).attr('id') == 'save_as_button'){
-            $(".hidden_list").slideUp('fast');
-            $( "#popupLogin" ).popup( "open");
+        return (config_to_send);
+    }
 
+    $('#save_as_button').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_to_send = GetConfigToSend();
+
+        $(".hidden_list").slideUp('fast');
+        $( "#popupLogin" ).popup( "open");
+
+        checkConfTitle();
+
+        $('#config_select_hidden').change(function(){
             checkConfTitle();
+        });
 
-            $('#config_select_hidden').change(function(){
-            	checkConfTitle();
-            });
+        $('#config-title-submit').click(function(){
+            var confTitle = $('input[name=config-title]').val();
+            var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
 
-            $('#config-title-submit').click(function(){
-            	var confTitle = $('input[name=config-title]').val();
-            	var config_name = (confTitle.substr(confTitle.length - 5) == '.conf') ? confTitle.substr(0, confTitle.length - 5) : confTitle;
+            var validSymbols = /^[a-zA-Z0-9_\-]+$/;
 
-                var validSymbols = /^[a-zA-Z0-9_\-]+$/;
-
-                if (!validSymbols.test(config_name)) {
-                    $('.space_alert').css('display', 'inline-block');
-                } 
-                else{
-                    config_name += '.conf';
-                    $('.space_alert').css('display', 'none');
-                    $( "#popupLogin" ).popup( "close");
-                    console.log('got signal to write config ' + config_name);
-
-                    if (mode != "base")
-                        config_to_send["config_file_name"] = config_name;
-
-                 socket.emit("write config " + mode, config_to_send);
-                }
-            });
-        }
-        else if($(this).attr('id') == 'save_button'){
-            var config_name = $("#config_select").val();
-
-            $('#config-save-submit').click(function(){
+            if (!validSymbols.test(config_name)) {
+                $('.space_alert').css('display', 'inline-block');
+            } 
+            else{
+                config_name += '.conf';
+                $('.space_alert').css('display', 'none');
+                $( "#popupLogin" ).popup( "close");
                 console.log('got signal to write config ' + config_name);
 
                 if (mode != "base")
                     config_to_send["config_file_name"] = config_name;
 
-                socket.emit("write config " + mode, config_to_send);
+             socket.emit("write config " + mode, config_to_send);
+            }
+        });
+    });
+
+    $('#save_button').click(function(){
+
+        if (mode == "base") {
+            $('#config-save-load-submit').click();
+        }
+        else
+            $( "#popupSave" ).popup( "open");
+    });
+
+    $('#config-save-submit').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_name = $("#config_select").val();
+        var config_to_send = GetConfigToSend();
+
+        console.log('got signal to write config ' + config_name);
+
+        if (mode != "base")
+            config_to_send["config_file_name"] = config_name;
+
+        socket.emit("write config " + mode, config_to_send);
+
+        $( "#popupSave" ).popup( "close");
+    });
+
+    $('#config-save-load-submit').click(function(){
+        var mode = $("input[name=radio_base_rover]:checked").val();
+        var config_name = $("#config_select").val();
+        var config_to_send = GetConfigToSend();
+
+        if (mode == "base") {
+            if($('#base_position').val() == 'llh' && ($('#base_pos_lat_entry').val() == '' || $('base_pos_lon_entry').val() == '' || $('base_pos_height_entry').val() == '')){
+                $( "#popupPos" ).popup( "open");
+            }
+            else{
+                console.log("Request to load new " + mode + " config and restart");
+                $('#start_button').css('display', 'none');
+                $('#stop_button').css('display', 'inline-block');
+
+                socket.emit("write and load config " + mode, config_to_send);
 
                 $( "#popupSave" ).popup( "close");
-            });
-
-            $('#config-save-load-submit').click(function(){
-
-                if (mode == "base") {
-                    if($('#base_position').val() == 'llh' && ($('#base_pos_lat_entry').val() == '' || $('base_pos_lon_entry').val() == '' || $('base_pos_height_entry').val() == '')){
-                        $( "#popupPos" ).popup( "open");
-                    }
-                    else{
-                        console.log("Request to load new " + mode + " config and restart");
-                        $('#start_button').css('display', 'none');
-                        $('#stop_button').css('display', 'inline-block');
-
-                        socket.emit("write and load config " + mode, config_to_send);
-
-                        $( "#popupSave" ).popup( "close");
-                    }
-                }
-                else {
-                    console.log('got signal to write config ' + config_name);
-                    console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
-
-                    config_to_send["config_file_name"] = config_name;
-
-                    $('#start_button').css('display', 'none');
-                    $('#stop_button').css('display', 'inline-block');
-
-                    socket.emit("write and load config " + mode, config_to_send);
-
-                    $( "#popupSave" ).popup( "close");
-                }
-            });
-
-            if (mode == "base") {
-                $('#config-save-load-submit').click();
             }
-            else
-                $( "#popupSave" ).popup( "open");
+        }
+        else {
+            console.log('got signal to write config ' + config_name);
+            console.log("Request to load new " + mode + " config with name + " + config_name + " and restart");
+
+            config_to_send["config_file_name"] = config_name;
+
+            $('#start_button').css('display', 'none');
+            $('#stop_button').css('display', 'inline-block');
+
+            socket.emit("write and load config " + mode, config_to_send);
+
+            $( "#popupSave" ).popup( "close");
         }
     });
 
