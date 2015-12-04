@@ -83,7 +83,6 @@ class Str2StrController:
 
         return "(" + string[:-1] + ")"
 
-
     def readConfig(self):
         parameters_to_send = {}
 
@@ -101,12 +100,12 @@ class Str2StrController:
         parameters_to_send["3"] = {"parameter": "base_pos_lon", "value": base_pos[1], "description": "Base longitude"}
         parameters_to_send["4"] = {"parameter": "base_pos_height", "value": base_pos[2], "description": "Base height"}
 
-        parameters_to_send["5"] = {
-            "parameter": "gps_cmd_file",
-            "value": self.gps_cmd_file[len(self.gps_cmd_file_path):-4],
-            "description": "u-blox configuration file",
-            "comment": self.formCommandFileCommentString()
-        }
+        # parameters_to_send["5"] = {
+        #     "parameter": "gps_cmd_file",
+        #     "value": self.gps_cmd_file[len(self.gps_cmd_file_path):-4],
+        #     "description": "u-blox configuration file",
+        #     "comment": self.formCommandFileCommentString()
+        # }
 
         return parameters_to_send
 
@@ -129,16 +128,16 @@ class Str2StrController:
         if len(filter(bool, self.base_position)) != 3:
             self.base_position = []
 
-        if parameters_received["5"]["value"]:
-            # if its not empty, we use full path
-            self.gps_cmd_file = self.gps_cmd_file_path + parameters_received["5"]["value"] + ".cmd"
-        else:
-            self.gps_cmd_file = ""
+        # if parameters_received["5"]["value"]:
+        #     # if its not empty, we use full path
+        #     self.gps_cmd_file = self.gps_cmd_file_path + parameters_received["5"]["value"] + ".cmd"
+        # else:
+        #     self.gps_cmd_file = ""
 
         self.rtcm3_messages = parameters_received["1"]["value"].split(",")
 
     def start(self, rtcm3_messages = None, base_position = None, gps_cmd_file = None):
-        # when we start str2str we also have 3 important optional parameters
+        #c when we start str2str we also have 3 important optional parameters
         # 1. rtcm3 message types. We have standard 1002, 1006, 1013, 1019 by default
         # 2. base position in llh. By default we don't pass any values, however it is best to use this feature
         # 3. gps cmd file will take care of msg frequency and msg types

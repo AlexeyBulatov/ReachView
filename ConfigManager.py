@@ -171,7 +171,6 @@ class Config:
         for item_number in self.items:
             # some of the fields are not numbers and need to be treated separately
             try:
-                item_n = int(item_number)
                 int_item_number = int(item_number)
             except ValueError:
                 pass
@@ -278,6 +277,44 @@ class ConfigManager:
             remove(config_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
+
+    def readItemFromConfig(self, property, from_file):
+        # read a complete item from config, found by "parameter part"
+
+        conf = Config(self.config_path + from_file)
+
+        # cycle through this config to find the needed option
+        for item_number in conf.items:
+            if conf.items[item_number]["parameter"] == property:
+                # in case we found it
+                return conf.items[item_number]
+
+        # in case we didn't
+        return None
+
+    def writeItemToConfig(self, item, to_file):
+        # write a complete item to the file
+
+        # first we read the whole file
+        conf = Config(self.config_path + to_file)
+
+        # then we substitute the one property
+        # cycle through this config to find the needed option
+        for item_number in conf.items:
+            if conf.items[item_number]["parameter"] == item["parameter"]:
+                # in case we found it
+                conf.items[item_number] = item
+
+                # rewrite the file again:
+                self.writeConfig(to_file, conf)
+                return 1
+                break
+
+        # in case we didn't find it
+        return None
+
+
+
 
 
 

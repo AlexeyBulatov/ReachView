@@ -410,7 +410,20 @@ class RTKLIB:
 
         print("Got signal to read base config")
 
-        self.socketio.emit("current config base", self.s2sc.readConfig(), namespace = "/test")
+        # we read current config from base, add option from proxy rover
+        current_config_base = self.s2sc.readConfig()
+
+        # extract one property - receiver cmd file from default base config
+        cmdfile1_item = self.conm.readItemFromConfig("file-cmdfile1", self.conm.default_base_config)
+
+        # extract receiver cmd file from base config
+        if cmdfile1_item is not None:
+            current_config_base["5"] = cmdfile1_item
+
+        print("DEBUG READING BASE CONFIG")
+        print(current_config_base)
+
+        self.socketio.emit("current config base", current_config_base, namespace = "/test")
 
         # self.semaphore.release()
 
