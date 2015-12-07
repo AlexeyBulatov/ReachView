@@ -837,6 +837,8 @@ class RTKLIB:
         while self.server_not_interrupted:
 
             # update satellite levels
+            self.rtkc.obs_rover = {}
+            self.rtkc.obs_base = {}
             self.rtkc.getObs()
 
             if count % 10 == 0:

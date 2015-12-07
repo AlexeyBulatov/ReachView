@@ -176,7 +176,12 @@ $(document).ready(function () {
     socket.on("satellite broadcast rover", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log("satellite msg received");
+            console.log('');
+            console.log('');
+            console.log("rover satellite msg received");
+            console.log(msg);
+            console.log('');
+            console.log('');
             updateSatelliteGraphRover(msg);
         }
     });
@@ -184,7 +189,12 @@ $(document).ready(function () {
     socket.on("satellite broadcast base", function(msg) {
         // check if the browser tab and app tab are active
         if ((active_tab == "Status") && (isActive == true)) {
-            console.log("satellite msg received");
+            console.log('');
+            console.log('');
+            console.log("base satellite msg received");
+            console.log(msg);
+            console.log('');
+            console.log('');
             updateSatelliteGraphBase(msg);
         }
     });
