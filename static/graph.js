@@ -1,3 +1,5 @@
+
+
 function updateCoordinateGrid(msg) {
         // status
         $("#status_value").html("<span>" + msg.solution_status + "</span>");
@@ -18,7 +20,7 @@ function updateCoordinateGrid(msg) {
         // TODO: obs values: heartbeat
 }
 
-function updateSatelliteGraphRover(msg) {
+function updateSatelliteGraphRover(msg, roverBars, height, labels){
     // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
 
     // we want to display the top 10 results
@@ -87,15 +89,16 @@ function updateSatelliteGraphRover(msg) {
             new_sat_fillcolors.push(current_fillcolor);
         }
     }
+    console.log('Levels are here');
+    var roverData = [{'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}];
+    var labeldata = ['', '', '', '', '', '', '', '', '', ''];
+    for (var i = 0; i < new_sat_levels.length; i++) {
+        roverData[i]['value'] = new_sat_levels[i];
+        roverData[i]['color'] = new_sat_fillcolors[i];
+        labeldata[i] = new_sat_labels[i];
+    };
 
-    // now, that we have a 3 arrays of names, levels and colors we add them to the graph data structure
-    satellite_graph.data.datasets[rover_dataset_number].data = new_sat_levels;
-    satellite_graph.data.labels = new_sat_labels;
-    satellite_graph.data.datasets[rover_dataset_number].metaData.forEach(function(bar, bar_index) {
-        bar.custom = {
-            backgroundColor: new_sat_fillcolors[bar_index]
-        };
-    });
+    updateRover(roverBars, height, labels, roverData, labeldata);
 
 }
 
@@ -110,37 +113,37 @@ function updateSatelliteGraphBase(msg) {
     var current_fillcolor;
 
     // cycle through the graphs's labels and extract base levels for them
-    satellite_graph.data.labels.forEach(function(label, label_index) {
-        if (label in msg) {
-            // get the sat level as an integer
-            current_level = parseInt(msg[label]);
+    // satellite_graph.data.labels.forEach(function(label, label_index) {
+    //     if (label in msg) {
+    //         // get the sat level as an integer
+    //         current_level = parseInt(msg[label]);
 
-            // determine the fill color depending on the sat level
-            switch(true) {
-                case (current_level < 30):
-                    current_fillcolor = "rgba(255, 0, 0, 0.1)"; // Red
-                    break;
-                case (current_level >= 30 && current_level <= 45):
-                    current_fillcolor = "rgba(255, 255, 0, 0.1)"; // Yellow
-                    break;
-                case (current_level >= 45):
-                    current_fillcolor = "rgba(0, 255, 0, 0.1)"; // Green
-                    break;
-            }
+    //         // determine the fill color depending on the sat level
+    //         switch(true) {
+    //             case (current_level < 30):
+    //                 current_fillcolor = "rgba(255, 0, 0, 0.1)"; // Red
+    //                 break;
+    //             case (current_level >= 30 && current_level <= 45):
+    //                 current_fillcolor = "rgba(255, 255, 0, 0.1)"; // Yellow
+    //                 break;
+    //             case (current_level >= 45):
+    //                 current_fillcolor = "rgba(0, 255, 0, 0.1)"; // Green
+    //                 break;
+    //         }
 
-            satellite_graph.data.datasets[base_dataset_number].data[label_index] = current_level;
-            satellite_graph.data.datasets[base_dataset_number].metaData[label_index].custom = {
-                backgroundColor: "rgba(186, 186, 186, 0.8)"
-            }
-        } else {
-            // if we don't the same satellite in the base
-            satellite_graph.data.datasets[base_dataset_number].data[label_index] = 0;
-        }
-    });
+    //         satellite_graph.data.datasets[base_dataset_number].data[label_index] = current_level;
+    //         satellite_graph.data.datasets[base_dataset_number].metaData[label_index].custom = {
+    //             backgroundColor: "rgba(186, 186, 186, 0.8)"
+    //         }
+    //     } else {
+    //         // if we don't the same satellite in the base
+    //         satellite_graph.data.datasets[base_dataset_number].data[label_index] = 0;
+    //     }
+    // });
 
     // we update the graph here because we want to update the rover info first
     // then update base info depending on the rover's new values
-    satellite_graph.update();
+    // satellite_graph.update();
 }
 
 function cleanStatus(mode, status) {
@@ -155,12 +158,12 @@ function cleanStatus(mode, status) {
         empty_string_list[i] = "";
     }
 
-    $.each(satellite_graph.data.datasets, function(i, dataset) {
-        dataset.data = empty_string_list;
-    });
+    // $.each(satellite_graph.data.datasets, function(i, dataset) {
+    //     dataset.data = empty_string_list;
+    // });
 
-    satellite_graph.data.labels = empty_string_list;
-    satellite_graph.update();
+    // satellite_graph.data.labels = empty_string_list;
+    // satellite_graph.update();
 
     var msg = {
         "lat" : "0",
@@ -173,107 +176,35 @@ function cleanStatus(mode, status) {
     updateCoordinateGrid(msg);
 }
 
-function createGraph(){
-    
-    // Initial formatting for the info blocks
+function updateRover(roverBars, height, labels, chartdata, labeldata){
 
-    var grid_style = {
-        backgroundColor: "Gainsboro",
-        border: "1px solid black",
-        textAlign: "left"
-    };
+    roverBars.data(chartdata)
+    .transition()    
+    .attr('height', function (data) {
+        return 5*data.value;
+    })
+    .attr('y', function (data) {
+        return (height - 5*data.value);
+    })
+    .style("fill", function(data) { return data.color; })
+    .duration(300);
 
-    $("#status_block").css(grid_style);
-    $("#mode_block").css(grid_style);
-    $("#lat_block").css(grid_style);
-    $("#lon_block").css(grid_style);
-    $("#height_block").css(grid_style);
+    labels.data(labeldata)
+        .text(function(d) {
+            return d;
+        });
+}
 
-    // Default values for the info boxes
+function updateBase(baseBars, height, chartdata){
 
-    $("#mode_value").text("no link");
-    $("#status_value").text("no link");
-    $("#lon_value").text("0");
-    $("#lat_value").text("0");
-    $("#height_value").html("0");
-
-    var canvas = $("#sat_chart_canvas");
-    canvas.css("width", "99%");
-    canvas.css("margin", "1%");
-
-    var ctx = canvas.get(0).getContext("2d");
-
-    // keep aspect ratio
-
-    ctx.canvas.width = window.innerWidth;
-    ctx.canvas.height = 0.5 * window.innerWidth;
-
-
-    // satellite_graph is created based on this data
-
-    var sat_data = {
-        labels: ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
-        datasets: [
-            {
-                // base sats
-                label: "Rover satellite levels",
-                backgroundColor: "rgba(0, 255, 0, 1)",
-                borderColor: "rgba(0, 0, 0, 1)",
-                borderWidth: 1,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            },
-            {
-                // rover sats
-                label: "Base satellite levels",
-                backgroundColor: "rgba(0, 255, 0, 1)",
-                borderColor: "rgba(0, 0, 0, 1)",
-                borderWidth: 1,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            }
-        ]
-    };
-
-    // change between-bar width depending on screen width
-    var bar_spacing = (ctx.canvas.width > 1000) ? 10 : 2;
-
-    var sat_options = {
-        responsive: true,
-        scales: {
-            xAxes: [{
-                display: true,
-                stacked: true,
-                categorySpacing: bar_spacing,
-                //spacing: -101,
-                gridLines: {
-                    color: "rgba(0, 0, 0, 0)",
-                },
-                labels: {
-                    fontSize: 10,
-                },
-            }],
-            yAxes: [{
-                display: true,
-                gridLines: {
-                    color: "rgba(0, 0, 0, 0.7)",
-                },
-                override: {
-                    start: 0,
-                    stepWidth: 5,
-                    steps: 11
-                }
-            }]
-        },
-        tooltips: {
-            enabled: false
-        },
-        // showTooltips: true,
-    };
-
-    // draw the satellite_graph
-
-    satellite_graph = new Chart(ctx, {
-        type : 'bar',
-        data: sat_data,
-        options: sat_options
-    });
+    baseBars.data(chartdata)
+    .transition()    
+    .attr('height', function (data) {
+        return 5*data.value;
+    })
+    .attr('y', function (data) {
+        return (height - 5*data.value);
+    })
+    .style("fill", function(data) { return data.color; })
+    .duration(300);
 }
