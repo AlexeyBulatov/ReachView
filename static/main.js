@@ -58,143 +58,12 @@ $(document).ready(function () {
         console.log("Active tab = " + active_tab);
     });
 
-    var chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
-    var chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
-    var labeldata = ['', '', '', '', '', '', '', '', '', ''];
+    var chart = new Chart();
+    chart.create();
 
-    var margin = {top: 30, right: 10, bottom: 30, left: 40};
-    //  the size of the overall svg element
-    var width = $("#bar-chart").width() - margin.left - margin.right,
-        height = 55*5,
-        barWidth = width*0.08,
-        barOffset = width*0.02;
-
-    var svg = d3.select('#bar-chart').append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .style('background', '#dff0d8');
-
-    var yScale = d3.scale.linear()
-    .domain([0, 55])
-    .range([0, height])
- 
-    var xScale = d3.scale.ordinal()
-        .rangeBands([0, width])
-
-    var verticalGuideScale = d3.scale.linear()
-        .domain([0, 55])
-        .range([height, 0])
-     
-    var vAxis = d3.svg.axis()
-        .scale(verticalGuideScale)
-        .orient('left')
-        .ticks(10)
-        .tickSize(-width, 0, 0)
-     
-    var verticalGuide = d3.select('svg').append('g')
-    vAxis(verticalGuide)
-    verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
-    verticalGuide.selectAll('path')
-        .style({fill: 'none', stroke: "black"})
-    verticalGuide.selectAll('line')
-        .style({stroke: "rgba(0,0,0,0.2)"})
-     
-
-    var hAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
-     
-    var horizontalGuide = d3.select('svg').append('g')
-    hAxis(horizontalGuide)
-    horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
-    horizontalGuide.selectAll('path')
-        .style({fill: 'none', stroke: "black"})
-    horizontalGuide.selectAll('line')
-        .style({stroke: "black"});
-
-         var margin = {top: 30, right: 10, bottom: 30, left: 40};
-    //  the size of the overall svg element
-    var width = $("#bar-chart").width() - margin.left - margin.right,
-        height = 55*5,
-        barWidth = width*0.08,
-        barOffset = width*0.02;
-
-    var roverBars = svg.append('g')
-        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .selectAll('rect').data(chartdata)
-        .enter().append('rect')
-        .style("fill", function(data) { return data.color; })
-        .style({stroke: "black"})
-        .attr('width', barWidth)
-        .attr('height', function (data) {
-            return 5*data.value;
-        })
-        .attr('x', function (data, i) {
-            return i * (barWidth + barOffset);
-        })
-        .attr('y', function (data) {
-            return (height - 5*data.value);
-        });
-
-    var baseBars = svg.append('g')
-        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .selectAll('rect').data(chartdata1)
-        .enter().append('rect')
-        .style("fill", function(data) { return data.color; })
-        .style({stroke: "black"})
-        .attr('width', barWidth)
-        .attr('height', function (data) {
-            return 5*data.value;
-        })
-        .attr('x', function (data, i) {
-            return i * (barWidth + barOffset);
-        })
-        .attr('y', function (data) {
-            return (height - 5*data.value);
-        });
-
-
-
-    var labels = svg.append("g")
-        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .attr("class", "labels")
-        .selectAll("text")
-        .data(labeldata)
-        .enter()
-        .append("text")
-        .attr("dx", function(d, i) {
-            return (i * (barWidth + barOffset)) + barWidth/2-14
-        })
-        .attr("dy", height + 20)
-        .text(function(d) {
-            return d;
-        });
-
-    $(window).resize(function() {
-        var width = $("#bar-chart").width() - margin.left - margin.right;
-        
-        var barWidth = width*0.08;
-        var barOffset = width*0.02;
-        svg.attr('width', width + margin.left + margin.right)
-        
-        roverBars.attr("width", barWidth)
-        .attr('x', function (data, i) {
-            return i * (barWidth + barOffset);
-        })
-        baseBars.attr("width", barWidth)
-        .attr('x', function (data, i) {
-            return i * (barWidth + barOffset);
-        })
-        labels.attr("dx", function(d, i) {
-            return (i * (barWidth + barOffset)) + barWidth/2-14
-        })
-        vAxis.tickSize(-width, 0, 0)
-        vAxis(verticalGuide)
-
-        xScale.rangeBands([0, width])
-        hAxis.scale(xScale)
-        hAxis(horizontalGuide)
-    });
+        // $(window).resize(function() {
+        //     chart.resize();
+        // });
 
     console.log("SAT GRAPH DEBUG");
     // console.dir(satellite_graph);
@@ -254,7 +123,7 @@ $(document).ready(function () {
         if(msg.started == 'yes'){
             $('#start_button').css('display', 'none');
             $('#stop_button').css('display', 'inline-block');
-            cleanStatus(msg.state, "started");
+            chart.cleanStatus(msg.state, "started");
         }
         else{
             $('#stop_button').css('display', 'none');
@@ -312,8 +181,8 @@ $(document).ready(function () {
             console.log(msg);
             console.log('');
             console.log('');
-            
-            updateSatelliteGraphRover(msg, roverBars, height, labels);
+            chart.roverUpdate(msg);
+            // updateSatelliteGraphRover(msg, roverBars, height, labels);
         
         }
     });
@@ -328,6 +197,7 @@ $(document).ready(function () {
             console.log('');
             console.log('');
             updateSatelliteGraphBase(msg);
+            chart.baseUpdate(msg);
         }
     });
 
