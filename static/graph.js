@@ -1,4 +1,5 @@
 function Chart() {
+
     this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.labeldata = ['', '', '', '', '', '', '', '', '', ''];
@@ -79,7 +80,6 @@ function Chart() {
             })
             .attr('y', function (data) {
                 return (55*5 - 5*data.value);
-                // return (height - 5*data.value);
             });
 
         this.baseBars = this.svg.append('g')
@@ -97,7 +97,6 @@ function Chart() {
             })
             .attr('y', function (data) {
                 return (55*5 - 5*data.value);
-                // return (height - 5*data.value);
             });
 
         this.labels = this.svg.append("g")
@@ -117,7 +116,7 @@ function Chart() {
     }
 
     this.resize = function(){
-        
+
         var margin = {top: 30, right: 10, bottom: 30, left: 40};
         var width = $("#bar-chart").width() - margin.left - margin.right;
         
@@ -246,27 +245,12 @@ function Chart() {
         var new_sat_levels = [];
         // var new_sat_labels = [];
         var new_sat_fillcolors = [];
-        // this.chartdata1 = [{'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}];
-        // console.log(this.labeldata);
 
         // cycle through the graphs's labels and extract base levels for them
         this.labeldata.forEach(function(label, label_index) {
             if (label in msg) {
                 // get the sat level as an integer
                 current_level = parseInt(msg[label]);
-
-                // determine the fill color depending on the sat level
-                // switch(true) {
-                //     case (current_level < 30):
-                //         current_fillcolor = "rgba(255, 0, 0, 0.1)"; // Red
-                //         break;
-                //     case (current_level >= 30 && current_level <= 45):
-                //         current_fillcolor = "rgba(255, 255, 0, 0.1)"; // Yellow
-                //         break;
-                //     case (current_level >= 45):
-                //         current_fillcolor = "rgba(0, 255, 0, 0.1)"; // Green
-                //         break;
-                // }
 
                 new_sat_levels.push(current_level);
                 new_sat_fillcolors.push("#d9d9d9");
@@ -276,7 +260,6 @@ function Chart() {
                 new_sat_levels.push(0);
                 new_sat_fillcolors.push("#d9d9d9");
             }
-            
 
         });
         for (var i = 0; i < new_sat_levels.length; i++) {
@@ -310,13 +293,6 @@ function Chart() {
         for (var i = 0; i < 10; i++) {
             empty_string_list[i] = "";
         }
-
-        // $.each(satellite_graph.data.datasets, function(i, dataset) {
-        //     dataset.data = empty_string_list;
-        // });
-
-        // satellite_graph.data.labels = empty_string_list;
-        // satellite_graph.update();
 
         this.roverBars.data(this.chartdata)
         .transition()    
