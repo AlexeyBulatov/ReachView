@@ -7,6 +7,12 @@ function Chart() {
     this.roverBars = '';
     this.baseBars = '';
     this.labels = '';
+    this.svg = '';
+    this.vAxis = '';
+    this.verticalGuide = '';
+    this.xScale = '';
+    this.hAxis = '';
+    this.horizontalGuide = '';
 
     this.create = function(){
         var height = 55*5;
@@ -16,7 +22,7 @@ function Chart() {
             barWidth = width*0.08,
             barOffset = width*0.02;
 
-        var svg = d3.select('#bar-chart').append('svg')
+        this.svg = d3.select('#bar-chart').append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
             .style('background', 'white');
@@ -25,41 +31,41 @@ function Chart() {
         .domain([0, 55])
         .range([0, height])
      
-        var xScale = d3.scale.ordinal()
+        this.xScale = d3.scale.ordinal()
             .rangeBands([0, width])
 
         var verticalGuideScale = d3.scale.linear()
             .domain([0, 55])
             .range([height, 0])
          
-        var vAxis = d3.svg.axis()
+        this.vAxis = d3.svg.axis()
             .scale(verticalGuideScale)
             .orient('left')
             .ticks(10)
             .tickSize(-width, 0, 0)
          
-        var verticalGuide = d3.select('svg').append('g')
-        vAxis(verticalGuide)
-        verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
-        verticalGuide.selectAll('path')
+        this.verticalGuide = d3.select('svg').append('g')
+        this.vAxis(this.verticalGuide)
+        this.verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
+        this.verticalGuide.selectAll('path')
             .style({fill: 'none', stroke: "black"})
-        verticalGuide.selectAll('line')
+        this.verticalGuide.selectAll('line')
             .style({stroke: "rgba(0,0,0,0.2)"})
          
 
-        var hAxis = d3.svg.axis()
-            .scale(xScale)
+        this.hAxis = d3.svg.axis()
+            .scale(this.xScale)
             .orient('bottom')
          
-        var horizontalGuide = d3.select('svg').append('g')
-        hAxis(horizontalGuide)
-        horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
-        horizontalGuide.selectAll('path')
+        this.horizontalGuide = d3.select('svg').append('g')
+        this.hAxis(this.horizontalGuide)
+        this.horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
+        this.horizontalGuide.selectAll('path')
             .style({fill: 'none', stroke: "black"})
-        horizontalGuide.selectAll('line')
+        this.horizontalGuide.selectAll('line')
             .style({stroke: "black"});
 
-        this.roverBars = svg.append('g')
+        this.roverBars = this.svg.append('g')
             .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
             .selectAll('rect').data(this.chartdata)
             .enter().append('rect')
@@ -77,7 +83,7 @@ function Chart() {
                 // return (height - 5*data.value);
             });
 
-        this.baseBars = svg.append('g')
+        this.baseBars = this.svg.append('g')
             .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
             .selectAll('rect').data(this.chartdata1)
             .enter().append('rect')
@@ -95,7 +101,7 @@ function Chart() {
                 // return (height - 5*data.value);
             });
 
-        this.labels = svg.append("g")
+        this.labels = this.svg.append("g")
             .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
             .attr("class", "labels")
             .selectAll("text")
@@ -109,32 +115,33 @@ function Chart() {
             .text(function(d) {
                 return d;
             });
+    }
 
-        // $(window).resize(function() {
-        //     var width = $("#bar-chart").width() - margin.left - margin.right;
-            
-        //     var barWidth = width*0.08;
-        //     var barOffset = width*0.02;
-        //     svg.attr('width', width + margin.left + margin.right)
-            
-        //     this.roverBars.attr("width", barWidth/2)
-        //     .attr('x', function (data, i) {
-        //         return i * (barWidth + barOffset);
-        //     })
-        //     this.baseBars.attr("width", barWidth/2)
-        //     .attr('x', function (data, i) {
-        //         return i * (barWidth + barOffset) + barWidth/2;
-        //     })
-        //     this.labels.attr("dx", function(d, i) {
-        //         return (i * (barWidth + barOffset)) + barWidth/2-14;
-        //     })
-        //     vAxis.tickSize(-width, 0, 0)
-        //     vAxis(verticalGuide)
+    this.resize = function(){
+        var margin = {top: 30, right: 10, bottom: 30, left: 40};
+        var width = $("#bar-chart").width() - margin.left - margin.right;
+        
+        var barWidth = width*0.08;
+        var barOffset = width*0.02;
+        this.svg.attr('width', width + margin.left + margin.right)
+        
+        this.roverBars.attr("width", barWidth/2)
+        .attr('x', function (data, i) {
+            return i * (barWidth + barOffset);
+        })
+        this.baseBars.attr("width", barWidth/2)
+        .attr('x', function (data, i) {
+            return i * (barWidth + barOffset) + barWidth/2;
+        })
+        this.labels.attr("dx", function(d, i) {
+            return (i * (barWidth + barOffset)) + barWidth/2-14;
+        })
+        this.vAxis.tickSize(-width, 0, 0)
+        this.vAxis(this.verticalGuide)
 
-        //     xScale.rangeBands([0, width])
-        //     hAxis.scale(xScale)
-        //     hAxis(horizontalGuide)
-        // });
+        this.xScale.rangeBands([0, width])
+        this.hAxis.scale(this.xScale)
+        this.hAxis(this.horizontalGuide)
     }
 
     this.roverUpdate = function(msg){

@@ -61,6 +61,10 @@ $(document).ready(function () {
     var chart = new Chart();
     chart.create();
 
+    $(window).resize(function() {
+        chart.resize();
+    });
+
         // $(window).resize(function() {
         //     chart.resize();
         // });
