@@ -58,7 +58,7 @@ $(document).ready(function () {
         console.log("Active tab = " + active_tab);
     });
 
-    var chart = new Chart();
+    chart = new Chart();
     chart.create();
 
     $(window).resize(function() {
@@ -200,7 +200,6 @@ $(document).ready(function () {
             console.log(msg);
             console.log('');
             console.log('');
-            updateSatelliteGraphBase(msg);
             chart.baseUpdate(msg);
         }
     });

@@ -1,9 +1,8 @@
-
 function Chart() {
     this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.labeldata = ['', '', '', '', '', '', '', '', '', ''];
-    // height = 0;
+    this.height = parseInt(55*5);
     this.roverBars = '';
     this.baseBars = '';
     this.labels = '';
@@ -79,7 +78,7 @@ function Chart() {
                 return i * (barWidth + barOffset);
             })
             .attr('y', function (data) {
-                return (height - 5*data.value);
+                return (55*5 - 5*data.value);
                 // return (height - 5*data.value);
             });
 
@@ -118,6 +117,7 @@ function Chart() {
     }
 
     this.resize = function(){
+        
         var margin = {top: 30, right: 10, bottom: 30, left: 40};
         var width = $("#bar-chart").width() - margin.left - margin.right;
         
@@ -145,6 +145,7 @@ function Chart() {
     }
 
     this.roverUpdate = function(msg){
+
         // msg object contains satellite data for rover in {"name0": "level0", "name1": "level1"} format
 
         // we want to display the top 10 results
@@ -214,9 +215,6 @@ function Chart() {
             }
         }
 
-        // this.chartdata = [{'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}, {'value':'', 'color':''}];
-        // this.labeldata = ['', '', '', '', '', '', '', '', '', ''];
-
         for (var i = 0; i < new_sat_levels.length; i++) {
             this.chartdata[i]['value'] = new_sat_levels[i];
             this.chartdata[i]['color'] = new_sat_fillcolors[i];
@@ -239,8 +237,6 @@ function Chart() {
                 return d;
             });
     }
-
-
 
 
     this.baseUpdate = function(msg){
@@ -299,14 +295,6 @@ function Chart() {
         .style("fill", function(data) { return data.color; })
         .duration(300);
     }
-
-
-
-
-
-
-
-
 
     this.cleanStatus = function(mode, status) {
         this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
@@ -378,71 +366,4 @@ function updateCoordinateGrid(msg) {
         $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
 
         // TODO: obs values: heartbeat
-}
-
-function updateSatelliteGraphBase(msg) {
-    // this function also updates the sat levels chart, but it handles base data
-    // on the contrary from the updateSatelliteGraphRover(msg) this function adds base data to the 
-    // corresponding rover satellites. In other words, we have a comparison of how the rover
-    // and the base see the top 10 rover's satellies
-
-
-
-
-
-    // we update the graph here because we want to update the rover info first
-    // then update base info depending on the rover's new values
-    // satellite_graph.update();
-}
-
-function updateBase(baseBars, height, chartdata){
-
-    baseBars.data(chartdata)
-    .transition()    
-    .attr('height', function (data) {
-        return 5*data.value;
-    })
-    .attr('y', function (data) {
-        return (height - 5*data.value);
-    })
-    .style("fill", function(data) { return data.color; })
-    .duration(300);
-}
-
-function cleanStatus(mode,status){
-    // console.log(1);
-            // $.each(satellite_graph.data.datasets, function(i, dataset) {
-        //     dataset.data = empty_string_list;
-        // });
-
-        // satellite_graph.data.labels = empty_string_list;
-        // satellite_graph.update();
-
-        // this.roverBars.data(this.chartdata)
-        // .transition()    
-        // .attr('height', function (data) {
-        //     return 5*data.value;
-        // })
-        // .attr('y', function (data) {
-        //     return (55*5 - 5*data.value);
-        // })
-        // .style("fill", function(data) { return data.color; })
-        // .duration(300);
-
-        // this.baseBars.data(this.chartdata)
-        // .transition()    
-        // .attr('height', function (data) {
-        //     return 5*data.value;
-        // })
-        // .attr('y', function (data) {
-        //     return (55*5 - 5*data.value);
-        // })
-        // .style("fill", function(data) { return data.color; })
-        // .duration(300);
-
-        // this.labels.data(this.labeldata)
-        //     .text(function(d) {
-        //         return d;
-        //     });
-    // }
 }

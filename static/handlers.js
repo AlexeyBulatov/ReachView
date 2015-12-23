@@ -34,7 +34,7 @@ $(document).on("pageinit", "#config_page", function() {
         socket.emit("start " + mode);
 
         if (mode == "base") {
-            cleanStatus(mode, "started");
+            chart.cleanStatus(mode, "started");
         }
 
         $('#start_button').css('display', 'none');
@@ -49,7 +49,7 @@ $(document).on("pageinit", "#config_page", function() {
         // after sending the stop command, we should clean the sat graph
         // and change status in the coordinate grid
 
-        cleanStatus(mode, "stopped");
+        chart.cleanStatus(mode, "stopped");
 
         $('#stop_button').css('display', 'none');
         $('#start_button').css('display', 'inline-block');
@@ -354,7 +354,7 @@ $(document).on("change", "input[name='radio_base_rover']", function() {
         break;
     }
 
-    cleanStatus(mode, status);
+    chart.cleanStatus(mode, status);
 
     $('#stop_button').css('display', 'none');
     $('#start_button').css('display', 'inline-block');
