@@ -18,18 +18,15 @@ function Chart() {
 
         var grid_style = {
             borderRight: "1x solid #ddd",
-            borderTop: "1px solid #ddd",
+            // borderTop: "1px solid #ddd",
             textAlign: "left", 
             borderCollapse: 'collapse',
             fontSize: '15px'
         };
 
-        $("#status_block").css({borderRight: '1px solid #ddd'});
-        $("#mode_block").css({borderRight: '1px solid #ddd'});
-        $("#lat_block").css(grid_style);
-        $("#lon_block").css(grid_style);
-        $("#height_block").css(grid_style);
-        $('.ui-grid-b .ui-bar').css({borderBottom: '1px solid #ddd',borderRight: '1px solid #ddd'});
+        $("#status_block, #mode_block, #satellites_valid_block, #age_of_differential_block").css({borderRight: '1px solid #ddd', borderBottom: '1px solid #ddd'});
+        $("#lat_block, #lon_block, #height_block, #obs_base_block, #obs_rover_block, #satellites_base_block, #satellites_rover_block").css(grid_style);
+        $('.ui-grid-b .ui-bar, .ui-grid-c .ui-bar').css({borderBottom: '1px solid #ddd',borderRight: '1px solid #ddd'});
 
         // Default values for the info boxes
 
@@ -351,7 +348,13 @@ function Chart() {
             "lon" : "0",
             "height": "0",
             "solution_status": status,
-            "positioning_mode": mode
+            "positioning_mode": mode, 
+            "satellites_valid": "0", 
+            "age_of_differential": "0", 
+            "obs_base": "0", 
+            "obs_rover": "0", 
+            "satellites_base": "0", 
+            "satellites_rover": "0", 
         };
 
         updateCoordinateGrid(msg)
@@ -363,6 +366,12 @@ function updateCoordinateGrid(msg) {
         // status
         $("#status_value").html("<span>" + msg.solution_status + "</span>");
         $("#mode_value").html("<span>" + msg.positioning_mode + "</span>");
+        $("#satellites_valid_value").html("<span>" + msg.satellites_valid + "</span>");
+        $("#age_of_differential_value").html("<span>" + msg.age_of_differential + "</span>");
+        $("#obs_base_value").html("<span>" + msg.obs_base + "</span>");
+        $("#obs_rover_value").html("<span>" + msg.obs_rover + "</span>");
+        $("#satellites_base_value").html("<span>" + msg.satellites_base + "</span>");
+        $("#satellites_rover_value").html("<span>" + msg.satellites_rover + "</span>");
 
         // coordinates
         // fix length of the strings
@@ -375,6 +384,8 @@ function updateCoordinateGrid(msg) {
         $("#lon_value").html("<span style='white-space:pre;'>" + lon_value + "</span>");
         $("#lat_value").html("<span style='white-space:pre;'>" + lat_value + "</span>");
         $("#height_value").html("<span style='white-space:pre;'>" + height_value + "  " + "</span>");
+        // $('#click_copy').attr('data-clipboard-text', lat_value + ' ' + lon_value + ' ' + height_value);
+        console.log(msg);
 
         // TODO: obs values: heartbeat
 }

@@ -29,6 +29,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.mobile-1.4.5.min.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.11.2.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery.mobile-1.4.5.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='clipboard.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='configs.js') }}" charset="utf-8"></script>
@@ -63,6 +64,19 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         </div>
     </div>
 
+    <div class="ui-grid-a">
+        <div class="ui-block-a" id="satellites_valid_block">
+            <div class="ui-bar">
+                <b>Sat valid: </b><span id="satellites_valid_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-b" id="age_of_differential_block">
+            <div class="ui-bar">
+                <b>Diff age: </b><span id="age_of_differential_value"></span>
+            </div>
+        </div>
+    </div>
+
     <div class="ui-grid-b">
         <div class="ui-block-a" id="lat_block">
             <div class="ui-bar">
@@ -74,9 +88,36 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                 <b>Lon: </b><span id="lon_value"></span>
             </div>
         </div>
-        <div class="ui-block-c" id="height_block">
+        <div class="ui-block-c" id="height_block" style="position:relative;">
             <div class="ui-bar">
                 <b>H: </b><span id="height_value"></span>
+            </div>
+<!--             <div style="position:absolute;right:0;top:0;height:100%;">
+            <a href="#" id="click_copy" class="btn" data-clipboard-action="copy" data-clipboard-text="0 0 0" data-role="button" data-icon="grid" data-iconpos="notext" style="position:absolute;right:0;top:0;width:30px;height:30px;padding:0px;margin:0"></a>
+            </div> -->
+
+        </div>
+    </div>
+
+    <div class="ui-grid-c">
+        <div class="ui-block-a" id="obs_base_block">
+            <div class="ui-bar">
+                <b>BO: </b><span id="obs_base_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-c" id="satellites_base_block">
+            <div class="ui-bar">
+                <b>BS: </b><span id="satellites_base_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-b" id="obs_rover_block">
+            <div class="ui-bar">
+                <b>RO: </b><span id="obs_rover_value"></span>
+            </div>
+        </div>
+        <div class="ui-block-d" id="satellites_rover_block">
+            <div class="ui-bar">
+                <b>RS: </b><span id="satellites_rover_value"></span>
             </div>
         </div>
     </div>
@@ -98,6 +139,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
                 <li><a href="#status_page" class="tab">Status</a></li>
                 <li><a href="#" class="tab ui-btn-active ui-state-persist">Config</a></li>
                 <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+
             </ul>
         </div>
     </div>
