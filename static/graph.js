@@ -3,15 +3,23 @@ function Chart() {
     this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
     this.labeldata = ['', '', '', '', '', '', '', '', '', ''];
+    
+    this.lineData = [{x: '', y: ''}];
     this.height = parseInt(55*5);
     this.roverBars = '';
     this.baseBars = '';
     this.labels = '';
     this.svg = '';
+    this.svg1 = '';
     this.vAxis = '';
     this.verticalGuide = '';
     this.xScale = '';
     this.hAxis = '';
+    this.horizontalGuide = '';
+    this.vAxis1 = '';
+    this.verticalGuide1 = '';
+    this.xScale1 = '';
+    this.hAxis1 = '';
     this.horizontalGuide = '';
 
     this.create = function(){
@@ -135,6 +143,101 @@ function Chart() {
                 return d;
             })
             .style("font-size","13px");
+    }
+
+    this.scatter = function(){
+
+       this.lineData = [{
+          x: 0,
+          y: 0
+        }, {
+          x: 50,
+          y: 50
+        }, {
+          x: 100,
+          y: 10
+        }, {
+          x: 140,
+          y: 50
+        }, {
+          x: 200,
+          y: 10
+        }, {
+          x: 250,
+          y: 40
+        }];
+        // Default values for the info boxes
+
+        var height = 55*5;
+        var margin = {top: 30, right: 10, bottom: 30, left: 40};
+        //  the size of the overall svg element
+        var width = $("#scatter-chart").width() - margin.left - margin.right,
+            barWidth = width*0.08,
+            barOffset = width*0.02;
+
+        this.svg = d3.select('#scatter-chart').append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .style('background', 'white');
+
+        var yScale = d3.scale.linear()
+        .domain([0, 55])
+        .range([0, height])
+     
+        this.xScale = d3.scale.ordinal()
+            .rangeBands([0, width])
+
+        var verticalGuideScale = d3.scale.linear()
+            .domain([0, 55])
+            .range([height, 0])
+         
+        this.vAxis = d3.svg.axis()
+            .scale(verticalGuideScale)
+            .orient('left')
+            .ticks(10)
+            .tickSize(-width, 0, 0)
+         
+        this.verticalGuide = d3.select('#scatter-chart svg').append('g')
+        this.vAxis(this.verticalGuide)
+        this.verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
+        this.verticalGuide.selectAll('path')
+            .style({fill: 'none', stroke: "black"})
+        this.verticalGuide.selectAll('line')
+            .style({stroke: "rgba(0,0,0,0.2)"})
+         
+
+        this.hAxis = d3.svg.axis()
+            .scale(this.xScale)
+            .orient('bottom')
+
+        var x = d3.time.scale().domain([0, width]).range([0, width]);
+        var y = d3.scale.linear().domain([0, 55]).range([55, 0]);
+
+        this.horizontalGuide = d3.select('#scatter-chart svg').append('g')
+        this.hAxis(this.horizontalGuide)
+        this.horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
+        this.horizontalGuide.selectAll('path')
+            .style({fill: 'none', stroke: "black"})
+        this.horizontalGuide.selectAll('line')
+            .style({stroke: "black"});
+
+        var lineFunc = d3.svg.line()
+            .x(function(d) { return x(d.x + 30); })
+            .y(function(d) { return 5*y(d.y - 6); })
+            .interpolate('linear');
+
+        this.svg.selectAll("dot")
+            .data(this.lineData)
+            .enter().append("circle")
+            .attr("r", 3.5)
+            .attr("cx", function(d) { return x(d.x + 30); })
+            .attr("cy", function(d) { return 5*y(d.y - 6); });
+
+       this.svg.append('path')
+          .attr('d', lineFunc(this.lineData))
+          .attr('stroke', 'blue')
+          .attr('stroke-width', 1)
+          .attr('fill', 'none');
     }
 
     this.resize = function(){
@@ -301,6 +404,44 @@ function Chart() {
         .duration(300);
     }
 
+    this.scatterUpdate = function(msg){
+        this.lineData = [{
+          x: 100,
+          y: msg.lat
+        }];
+
+        var height = 55*5;
+        var margin = {top: 30, right: 10, bottom: 30, left: 40};
+        //  the size of the overall svg element
+        var width = $("#scatter-chart").width() - margin.left - margin.right;
+        var x = d3.time.scale().domain([0, 50]).range([0, 50]);
+        var y = d3.scale.linear().domain([0, 55]).range([55, 0]);
+
+        // this.svg.selectAll("dot")
+        //     .data(this.lineData)
+        //     .enter().append("circle")
+        //     .transition()
+        //     .attr("r", 1.5)
+        //     .attr("cx", function(d) { return x(d.x + 30); })
+        //     .attr("cy", function(d) { return 5*y(d.y - 6); })
+        //     .duration(300);
+
+        // var lineFunc = d3.svg.line()
+        //     .x(function(d) { return x(d.x + 30); })
+        //     .y(function(d) { return 5*y(d.y - 6); })
+        //     .interpolate('linear');
+
+       // this.svg.append('path')
+       //      .transition()
+       //      .attr('d', lineFunc(this.lineData))
+       //      .attr('stroke', 'blue')
+       //      .attr('stroke-width', 1)
+       //      .attr('fill', 'none')
+       //      .duration(300);
+
+        updateCoordinateGrid(msg);
+    }
+
     this.cleanStatus = function(mode, status) {
         this.chartdata = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
         this.chartdata1 = [{'value':'', 'color':'rgba(255,0,0,0.5)'}, {'value':'', 'color':'rgba(255,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}, {'value':'', 'color':'rgba(0,255,0,0.5)'}];
@@ -357,7 +498,7 @@ function Chart() {
             "satellites_rover": "0", 
         };
 
-        updateCoordinateGrid(msg)
+        updateCoordinateGrid(msg);
     }
 
 }

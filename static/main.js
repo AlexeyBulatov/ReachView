@@ -61,6 +61,9 @@ $(document).ready(function () {
     chart = new Chart();
     chart.create();
 
+    scatter = new Chart();
+    scatter.scatter();
+
     $(window).resize(function() {
         chart.resize();
     });
@@ -222,7 +225,8 @@ $(document).ready(function () {
         // check if the browser tab and app tab
         if ((active_tab == "Status") && (isActive == true)) {
             console.log("coordinate msg received");
-            updateCoordinateGrid(msg);
+            // updateCoordinateGrid(msg);
+            scatter.scatterUpdate(msg);
         }
     });
 
