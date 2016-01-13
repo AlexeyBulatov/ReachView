@@ -80,7 +80,6 @@ function Chart() {
             .style({fill: 'none', stroke: "black"})
         this.verticalGuide.selectAll('line')
             .style({stroke: "rgba(0,0,0,0.2)"})
-         
 
         this.hAxis = d3.svg.axis()
             .scale(this.xScale)
@@ -149,19 +148,19 @@ function Chart() {
 
        this.lineData = [{
           x: 0,
-          y: 0
+          y: 11
         }, {
           x: 50,
-          y: 50
+          y: 20
         }, {
           x: 100,
-          y: 10
+          y: 20
         }, {
           x: 140,
-          y: 50
+          y: 44
         }, {
           x: 200,
-          y: 10
+          y: 30
         }, {
           x: 250,
           y: 40
@@ -178,17 +177,19 @@ function Chart() {
         this.svg = d3.select('#scatter-chart').append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)
+            // .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
             .style('background', 'white');
 
         var yScale = d3.scale.linear()
         .domain([0, 55])
         .range([0, height])
      
-        this.xScale = d3.scale.ordinal()
-            .rangeBands([0, width])
+        this.xScale = d3.scale.linear()
+            // .domain([0, 55])
+            .range([0, width])
 
         var verticalGuideScale = d3.scale.linear()
-            .domain([0, 55])
+            // .domain([0, 55])
             .range([height, 0])
          
         this.vAxis = d3.svg.axis()
@@ -200,15 +201,17 @@ function Chart() {
         this.verticalGuide = d3.select('#scatter-chart svg').append('g')
         this.vAxis(this.verticalGuide)
         this.verticalGuide.attr('transform', 'translate(' + 30 + ', ' + margin.top + ')')
-        this.verticalGuide.selectAll('path')
-            .style({fill: 'none', stroke: "black"})
         this.verticalGuide.selectAll('line')
             .style({stroke: "rgba(0,0,0,0.2)"})
+		this.verticalGuide.selectAll('text')
+            .style({'display': "none"})
          
 
         this.hAxis = d3.svg.axis()
             .scale(this.xScale)
             .orient('bottom')
+            .ticks(20)
+            .tickSize(-height, 0, 0)
 
         var x = d3.time.scale().domain([0, width]).range([0, width]);
         var y = d3.scale.linear().domain([0, 55]).range([55, 0]);
@@ -216,28 +219,37 @@ function Chart() {
         this.horizontalGuide = d3.select('#scatter-chart svg').append('g')
         this.hAxis(this.horizontalGuide)
         this.horizontalGuide.attr('transform', 'translate(' + 30 + ', ' + (height + margin.top) + ')')
-        this.horizontalGuide.selectAll('path')
-            .style({fill: 'none', stroke: "black"})
         this.horizontalGuide.selectAll('line')
-            .style({stroke: "black"});
+            .style({stroke: "rgba(0,0,0,0.2)"})
+        this.horizontalGuide.selectAll('text')
+            .style({'display': "none"})
 
         var lineFunc = d3.svg.line()
             .x(function(d) { return x(d.x + 30); })
             .y(function(d) { return 5*y(d.y - 6); })
             .interpolate('linear');
+		
+		// var scale = 55/(d3.max(this.lineData, function(d){return d.y}) - d3.min(this.lineData, function(d){return d.y}));
+		var scale = '1';
+		var xShear = width-d3.max(this.lineData, function(d){return d.x})+d3.min(this.lineData, function(d){return d.x}) + (d3.max(this.lineData, function(d){return d.x})+d3.min(this.lineData, function(d){return d.x}))*(1 - scale)*3/2;
+		// var yShear = -height + d3.max(this.lineData, function(d){return 5*d.y}) + d3.min(this.lineData, function(d){return 5*d.y}) - (d3.max(this.lineData, function(d){return 5*d.y}) + d3.min(this.lineData, function(d){return 5*d.y}))*(1 - scale)*5;
+		var yShear = -height + (d3.max(this.lineData, function(d){return 5*d.y}) + d3.min(this.lineData, function(d){return 5*d.y}));
 
         this.svg.selectAll("dot")
             .data(this.lineData)
             .enter().append("circle")
             .attr("r", 3.5)
             .attr("cx", function(d) { return x(d.x + 30); })
-            .attr("cy", function(d) { return 5*y(d.y - 6); });
+            .attr("cy", function(d) { return 5*y(d.y - 6); })
+            .attr('transform', 'translate('+ xShear/2 +','+ yShear/2 +')scale(' + scale + ')')
+
 
        this.svg.append('path')
           .attr('d', lineFunc(this.lineData))
           .attr('stroke', 'blue')
           .attr('stroke-width', 1)
-          .attr('fill', 'none');
+          .attr('fill', 'none')
+          .attr('transform', 'translate('+ xShear/2 +','+ yShear/2 +')scale(' + scale + ')')
     }
 
     this.resize = function(){
