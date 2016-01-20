@@ -29,7 +29,7 @@ class Convbin:
     supported_log_formats = ["rtcm2", "rtcm3", "nov", "oem3", "ubx", "ss2", "hemis", "stq", "javad", "nvs", "binex", "rinex"]
 
     def __init__(self, rtklib_path):
-        self.bin_path = rtklib_path + "/app/convbin/gcc/convbin"
+        self.bin_path = rtklib_path + "/app/convbin/gcc"
         self.child = 0
 
     def convertRTKLIBLogToRINEX(self, log_path):
@@ -55,7 +55,7 @@ class Convbin:
 
     def convertLogToRINEX(self, log_path, format):
 
-        spawn_command = " ".join([self.bin_path, "-r", format, log_path])
+        spawn_command = " ".join([self.bin_path + "/convbin", "-r", format, log_path])
 
         print("Specified format is " + format)
 
