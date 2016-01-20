@@ -21,8 +21,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from glob import glob
-from os import remove, path
 
 from log_converter import convbin
 
@@ -42,17 +42,15 @@ class LogManager():
         self.available_logs = []
 
         # get a list of available .log files in the log directory
-        full_path_logs = glob(self.log_path + "*.log")
-
-        path_length = len(self.log_path)
+        full_path_logs = glob(self.log_path + "/*.log")
 
         for log in full_path_logs:
             if log:
                 # if the entry is not empty, we get file name, size and prepare them for use in templates
 
-                log_name = log[path_length:]
+                log_name = os.path.basename(log)
                 # get size in bytes and convert to MB
-                log_size = path.getsize(log) / (1024*1024.0)
+                log_size = os.path.getsize(log) / (1024*1024.0)
                 log_size = str(log_size)
                 right_border = log_size.find(".") + 2
                 log_size = log_size[:right_border]
@@ -68,7 +66,7 @@ class LogManager():
         # try to delete log if it exists
 
         try:
-            remove(self.log_path + log_name)
+            os.remove(self.log_path + log_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
 
