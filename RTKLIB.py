@@ -41,7 +41,15 @@ class RTKLIB:
     # we will save RTKLIB state here for later loading
     state_file = "/home/reach/.reach/rtk_state"
 
-    def __init__(self, socketio, enable_led = True, rtkrcv_path = None, config_path = None, str2str_path = None, gps_cmd_file_path = None, log_path = None):
+    def __init__(self, socketio, rtklib_path = None, enable_led = True, log_path = None):
+
+
+        if rtklib_path is None:
+            rtklib_path = "/home/reach/RTKLIB"
+
+        if log_path is None:
+            log_path = "/home/reach/logs"
+
         # default state for RTKLIB is "rover single"
         self.state = "rover"
 
@@ -49,14 +57,14 @@ class RTKLIB:
         self.socketio = socketio
 
         # these are necessary to handle rover mode
-        self.rtkc = RtkController(rtkrcv_path, config_path)
-        self.conm = ConfigManager(config_path)
+        self.rtkc = RtkController(rtklib_path)
+        self.conm = ConfigManager(rtklib_path)
 
         # this one handles base settings
-        self.s2sc = Str2StrController(str2str_path, gps_cmd_file_path)
+        self.s2sc = Str2StrController(rtklib_path)
 
         # take care of serving logs
-        self.logm = LogManager(log_path)
+        self.logm = LogManager(rtklib_path, log_path)
 
         # basic synchronisation to prevent errors
         self.semaphore = Semaphore()

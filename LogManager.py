@@ -24,14 +24,14 @@
 from glob import glob
 from os import remove, path
 
+from log_converter import convbin
+
 class LogManager():
 
-    def __init__(self, log_path = None):
+    def __init__(self, rtklib_path, log_path):
 
-        if log_path is None:
-            self.log_path = "/home/reach/logs/"
-        else:
-            self.log_path = path_to_logs
+        self.log_path = log_path
+        self.convbin = convbin.Convbin(rtklib_path)
 
         self.available_logs = []
         self.updateAvailableLogs()
