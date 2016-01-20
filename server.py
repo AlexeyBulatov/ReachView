@@ -71,8 +71,8 @@ def index():
 @app.route("/logs/<path:log_name>")
 def downloadLog(log_name):
     print("Got signal to download a log, name = " + str(log_name))
-    print("Path to log == " + rtk.logm.log_path + str(log_name))
-    return send_file(rtk.logm.log_path + log_name, as_attachment = True)
+    print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
+    return send_file(rtk.logm.log_path + "/" + log_name, as_attachment = True)
 
 @socketio.on("connect", namespace="/test")
 def testConnect():

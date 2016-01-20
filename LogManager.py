@@ -34,7 +34,27 @@ class LogManager():
         self.convbin = convbin.Convbin(rtklib_path)
 
         self.available_logs = []
+
+        self.rinex_logs = []
         self.updateAvailableLogs()
+
+    def processNewLogs(self):
+
+        print("Processing new logs!!!")
+
+        raw_rover_logs = glob(self.log_path + "/*.ubx")
+        raw_base_logs = glob(self.log_path + "/*.rtcm3")
+
+        raw_logs_paths = raw_base_logs + raw_rover_logs
+
+        print(raw_logs_paths)
+
+        for log_path in raw_logs_paths:
+            log = self.convbin.convertRTKLIBLogToRINEX(log_path)
+            print("Conversion result == " + str(log))
+
+            if log is not None:
+                log.createLogPackage()
 
     def updateAvailableLogs(self):
 
@@ -42,7 +62,7 @@ class LogManager():
         self.available_logs = []
 
         # get a list of available .log files in the log directory
-        full_path_logs = glob(self.log_path + "/*.log")
+        full_path_logs = glob(self.log_path + "/*.zip")
 
         for log in full_path_logs:
             if log:
@@ -66,7 +86,7 @@ class LogManager():
         # try to delete log if it exists
 
         try:
-            os.remove(self.log_path + log_name)
+            os.remove(self.log_path + "/" + log_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
 

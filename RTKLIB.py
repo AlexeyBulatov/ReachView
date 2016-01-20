@@ -213,6 +213,8 @@ class RTKLIB:
 
         self.semaphore.release()
 
+        self.logm.processNewLogs()
+
         return res
 
     def launchBase(self):

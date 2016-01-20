@@ -25,12 +25,12 @@ function checkInputSelects(i, method){ //inp OR out OR log
 			$('#' + method + 'str' + i + '-path_entry').parent().parent().append('<div class="additional' + method + i + ' additional_general"><input type="text" id="path' + method + i + '" data-clear-btn="true" placeholder="Path (required)" class="config_form_field"></div>').trigger("create");
 			if(method == 'log'){
 				if(i == 1){
-					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
-					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.log');
+					$('#pathlog1').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
+					$('#logstr1-path_entry').val('/home/reach/logs/rov_%Y%m%d%h%M.ubx');
 				}
 				else if(i == 2)
-					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
-					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.log');
+					$('#pathlog2').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
+					$('#logstr2-path_entry').val('/home/reach/logs/ref_%Y%m%d%h%M.rtcm3');
 			}
 			else if(method == 'out'){
 				if(i == 1){

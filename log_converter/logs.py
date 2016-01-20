@@ -46,9 +46,8 @@ class LogMetadata:
         self.extractDataFromString(convbin_output)
 
     def __str__(self):
-        to_print = "Printing log metadata:\n"
-        to_print += "Log start time == " + str(self.start_timestamp) + "\n"
-        to_print += "Log stop time == " + str(self.stop_timestamp) + "\n"
+        to_print = "Log start time: " + str(self.start_timestamp) + "\n"
+        to_print += "Log stop time: " + str(self.stop_timestamp) + "\n"
         to_print += "Navigation messages parsed:\n"
         to_print += str(self.navigation_messages)
 
@@ -127,9 +126,13 @@ class Log:
     def __init__(self, log_path, log_metadata):
 
         self.log_path = log_path
+        self.log_name = os.path.splitext(os.path.basename(self.log_path))[0]
+
         self.log_metadata = log_metadata
 
         self.RINEX_files = self.findRINEXFiles(os.path.dirname(self.log_path))
+
+        self.log_package_path = ""
 
     def __str__(self):
 
@@ -148,14 +151,12 @@ class Log:
         files_in_dir = glob.glob(log_directory + "/*")
         rinex_files_in_dir = []
 
-        raw_log_name = os.path.splitext(os.path.basename(self.log_path))[0]
-
         for f in files_in_dir:
             filename = os.path.basename(f)
             name, extension = os.path.splitext(filename)
 
             if extension in self.rinex_file_extensions:
-                if name == raw_log_name:
+                if name == self.log_name:
                     rinex_files_in_dir.append(f)
 
         return rinex_files_in_dir
@@ -174,13 +175,31 @@ class Log:
 
         return files_list
 
-    def createLogPackage(self, package_destination):
+    def createLogPackage(self, package_destination=None):
         # files_list is a list of tuples [("abspath", "wanted_path_inside_zip"), ... ]
+
+        if package_destination is None:
+            package_destination = os.path.dirname(self.log_path) + "/" + self.log_name + ".zip"
         file_tree = self.prepareLogPackage()
 
         with zipfile.ZipFile(package_destination, "w") as newzip:
             for f in file_tree:
                 newzip.write(f[0], f[1])
+
+            newzip.writestr("readme.txt", str(self.log_metadata))
+
+        self.deleteLogFiles()
+        
+    def deleteLogFiles(self):
+
+        all_log_files = self.RINEX_files
+        all_log_files.append(self.log_path)
+
+        for log in all_log_files:
+            try:
+                os.remove(log)
+            except:
+                pass
 
 
 class KinematicLog:
@@ -203,6 +222,9 @@ class KinematicLog:
             for f in rover_file_tree:
                 newzip.write(f[0], "Rover/" + f[1])
 
+            newzip.writestr("Rover/readme.txt", str(self.rover_log.log_metadata))
+
             for f in base_file_tree:
                 newzip.write(f[0], "Base/" + f[1])
 
+            newzip.writestr("Base/readme.txt", str(self.base_log.log_metadata))
