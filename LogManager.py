@@ -38,37 +38,6 @@ class LogManager():
         self.rinex_logs = []
         self.updateAvailableLogs()
 
-    def processNewLogs(self):
-
-        print("Processing new logs!!!")
-
-        raw_rover_logs = glob(self.log_path + "/*.ubx")
-        raw_base_logs = glob(self.log_path + "/*.rtcm3")
-
-        raw_logs_paths = raw_base_logs + raw_rover_logs
-
-        print(raw_logs_paths)
-
-        for log_path in raw_logs_paths:
-            log = self.convbin.convertRTKLIBLogToRINEX(log_path)
-            print("Conversion result == " + str(log))
-
-            if log is not None:
-                log.createLogPackage()
-
-    def createRINEXPackage(self, raw_log_path):
-        # create a RINEX package from the log if it's possible
-
-        # return raw log path if we failed to convert
-        result = raw_log_path
-
-        log = self.convbin.convertRTKLIBLogToRINEX(raw_log_path)
-
-        if log is not None:
-            result = log.createLogPackage()
-
-        return result
-
     def updateAvailableLogs(self):
 
         # clean previous values

@@ -74,6 +74,7 @@ def downloadLog(log_name):
     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
     raw_log_path = rtk.logm.log_path + "/" + log_name
     log_package_path = rtk.createRINEXPackage(raw_log_path)
+    print("Sending log file " + log_package_path)
     return send_file(log_package_path, as_attachment = True)
 
 @socketio.on("connect", namespace="/test")

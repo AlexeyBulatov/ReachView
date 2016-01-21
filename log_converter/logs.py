@@ -53,6 +53,16 @@ class LogMetadata:
 
         return to_print
 
+    def countValidMessages(self):
+
+        valid_messages = 0
+
+        for msg_type, msg_count in self.navigation_messages.items():
+            if msg_type is not "Errors":
+                valid_messages += int(msg_count)
+
+        return valid_messages
+
     def extractDataFromString(self, data_string):
         # example string:
         # 2016/01/08 09:35:02-01/08 11:24:58: O=32977 N=31 G=41 E=2
@@ -69,10 +79,6 @@ class LogMetadata:
     def extractTimeDataFromString(self, data_list):
         # example string(split into a list by spaces)
         # 2016/01/08 09:35:02-01/08 11:24:58:
-
-        # remove all the extra punctuation
-        raw_data = "".join(data_list)
-        raw_data = raw_data.translate(None, "/:\r")
 
         start_timestamp = raw_data.split("-")[0]
         stop_timestamp = raw_data.split("-")[1]
@@ -145,6 +151,10 @@ class Log:
         to_print += str(self.prepareLogPackage())
 
         return to_print
+
+    def isValid(self):
+        # determine whether the log has valuable RINEX info
+        return True if self.log_metadata.countValidMessages() else False
 
     def findRINEXFiles(self, log_directory):
 
