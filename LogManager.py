@@ -62,7 +62,7 @@ class LogManager():
         self.available_logs = []
 
         # get a list of available .log files in the log directory
-        full_path_logs = glob(self.log_path + "/*.zip")
+        full_path_logs = glob(self.log_path + "/*.rtcm3") + glob(self.log_path + "/*.ubx")
 
         for log in full_path_logs:
             if log:
