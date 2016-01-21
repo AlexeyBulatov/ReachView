@@ -71,9 +71,7 @@ class LogManager():
                 log_name = os.path.basename(log)
                 # get size in bytes and convert to MB
                 log_size = os.path.getsize(log) / (1024*1024.0)
-                log_size = str(log_size)
-                right_border = log_size.find(".") + 2
-                log_size = log_size[:right_border]
+                log_size = "{0:.2f}".format(log_size)
 
                 self.available_logs.append({
                     "name": log_name,
