@@ -47,7 +47,7 @@ class LogMetadata:
 
     def __str__(self):
         to_print = "Log start time: " + self.formatTimestamp(self.start_timestamp) + "\n"
-        to_print += "Log stop time: " + self.formatTimestamp(self.stop_timestamp) + "\n"
+        to_print += "Log stop time:  " + self.formatTimestamp(self.stop_timestamp) + "\n"
         to_print += "Navigation messages parsed:\n"
         to_print += str(self.navigation_messages)
 

@@ -33,7 +33,7 @@ function addConversionStatusDialog(log_being_converted, conversion_time) {
 function formConversionStatusString(log_name, conversion_time) {
 
     var resulting_string = '<li><a href=# target="_blank" class="log_conversion_status_string">';
-    resulting_string += "Converting " + log_name + ". Approximate conversion time: " + conversion_time;
+    resulting_string += "Converting " + log_name + "... Approximate conversion time: " + conversion_time;
     resulting_string += '</a></li>';
 
     return resulting_string;
