@@ -329,7 +329,7 @@ $(document).on("pageinit", "#logs_page", function() {
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
         $(this).parent().remove();
-        
+
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
 

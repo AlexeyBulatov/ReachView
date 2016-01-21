@@ -34,8 +34,6 @@ class LogManager():
         self.convbin = convbin.Convbin(rtklib_path)
 
         self.available_logs = []
-
-        self.rinex_logs = []
         self.updateAvailableLogs()
 
     def updateAvailableLogs(self):

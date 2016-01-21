@@ -49,7 +49,7 @@ class Convbin:
             else:
                 print("Error: Log invalid, or file extension is wrong")
         else:
-            print("Error: Could not determine log format due to bad file extension")
+            print("Error: Bad file extension")
 
         return result
 

@@ -27,10 +27,11 @@ from Str2StrController import Str2StrController
 from LogManager import LogManager
 from ReachLED import ReachLED
 
-from threading import Semaphore, Thread
 import json
 import time
+import os
 from subprocess import check_output, Popen, PIPE
+from threading import Semaphore, Thread
 
 # master class for working with all RTKLIB programmes
 # prevents them from stacking up and handles errors
@@ -488,8 +489,11 @@ class RTKLIB:
         # create a RINEX package before download
         # in case we fail to convert, return the raw log path back
         result = raw_log_path
-
+        log_filename = os.path.basename(raw_log_path)
         # get the size to determine approximate conversion time in seconds
+        log_size = os.path.getsize(raw_log_path) / (1024*1024.0)
+
+        self.socketio.emit("converting log", {"name": log_filename}, namespace="/test")
 
         log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
 
@@ -498,6 +502,10 @@ class RTKLIB:
         if log is not None:
             if log.isValid():
                 result = log.createLogPackage()
+            else:
+                self.socketio.emit("converting log", {"name": log_filename, "status": "log invalid"}, namespace="/test")
+        else:
+            print("Could not convert log. Is the extension wrong?")
 
         print("Log conversion results:")
         print(str(log))
@@ -545,7 +553,7 @@ class RTKLIB:
         return state
 
     def byteify(self, input):
-        # thanks to Mark Amery from StackOverFlow for this awesome function
+        # thanks to Mark Amery from StackOverflow for this awesome function
         if isinstance(input, dict):
             return {self.byteify(key): self.byteify(value) for key, value in input.iteritems()}
         elif isinstance(input, list):
