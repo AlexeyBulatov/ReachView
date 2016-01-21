@@ -60,7 +60,7 @@ class Convbin:
         print("Specified format is " + format)
 
         self.child = pexpect.spawn(spawn_command, echo = False)
-        self.child.expect(pexpect.EOF)
+        self.child.expect(pexpect.EOF, timeout = None)
 
         return self.parseConvbinOutput(self.child.before)
 

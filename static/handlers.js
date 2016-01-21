@@ -20,14 +20,23 @@ function checkConfTitle() {
     }
 }
 
-function addConversionStatusDialog(log_being_converted) {
+function addConversionStatusDialog(log_being_converted, conversion_time) {
     // insert a new list item to the log list
     var logs_list = $("#logs_list");
-    var string_container = '<li><a href=# target="_blank" class="log_conversion_status_string">log conversion status</a></li>';
+    var string_container = formConversionStatusString(log_being_converted, conversion_time);
     var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
 
     log_list_item.after(string_container);
     logs_list.listview('refresh');
+}
+
+function formConversionStatusString(log_name, conversion_time) {
+
+    var resulting_string = '<li><a href=# target="_blank" class="log_conversion_status_string">';
+    resulting_string += "Converting " + log_name + ". Approximate conversion time: " + conversion_time;
+    resulting_string += '</a></li>';
+
+    return resulting_string;
 }
 
 $(document).on("pageinit", "#config_page", function() {
@@ -351,11 +360,12 @@ $(document).on("pageinit", "#logs_page", function() {
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
     socket.on("log conversion start", function(msg) {
         var log_being_converted = msg.name;
+        var time_estimate = msg.time;
 
         console.log("Log conversion start");
 
         // append a status window after the listview item
-        addConversionStatusDialog(log_being_converted);
+        addConversionStatusDialog(log_being_converted, time_estimate);
     });
 });
 

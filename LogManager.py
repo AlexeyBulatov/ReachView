@@ -60,6 +60,18 @@ class LogManager():
 
         self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
 
+    def calculateConversionTime(self, log_path):
+        # calculate time to convert based on log size and format
+        log_size = os.path.getsize(log_path) / (1024*1024.0)
+        conversion_time = 0
+
+        if log_path.endswith("rtcm3"):
+            conversion_time = 24 * log_size
+        elif log_path.endswith("ubx"):
+            conversion_time = 1.2 * log_size
+
+        return "{0:.2f}".format(conversion_time)
+
     def deleteLog(self, log_name):
         # try to delete log if it exists
 
@@ -67,8 +79,3 @@ class LogManager():
             os.remove(self.log_path + "/" + log_name)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
-
-
-
-
-
