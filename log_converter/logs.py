@@ -215,12 +215,12 @@ class Log:
 
         return package_destination
 
-        # self.deleteLogFiles()
+        self.deleteLogFiles()
 
     def deleteLogFiles(self):
 
         all_log_files = self.RINEX_files
-        all_log_files.append(self.log_path)
+        # all_log_files.append(self.log_path)
 
         for log in all_log_files:
             try:

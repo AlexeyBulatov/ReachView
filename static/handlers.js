@@ -356,7 +356,7 @@ $(document).on("pageinit", "#settings", function() {
                 --updateStatus;
                 $('.load_update p').text(updateStatus);
             }, 1000);
-               
+
             setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
            }
