@@ -481,8 +481,22 @@ class RTKLIB:
 
         # send available configs to the browser
         self.socketio.emit("available configs", {"available_configs": self.conm.available_configs}, namespace="/test")
-        
+
         print(self.conm.available_configs)
+
+    def createRINEXPackage(self, raw_log_path):
+        # create a RINEX package before download
+        # in case we fail to convert, return the raw log path back
+        result = raw_log_path
+
+        # get the size to determine approximate conversion time in seconds
+
+        log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+
+        if log is not None:
+            result = log.createLogPackage()
+
+        return result
 
     def saveState(self):
         # save current state for future resurrection:
