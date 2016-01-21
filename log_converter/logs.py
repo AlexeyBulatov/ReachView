@@ -188,8 +188,10 @@ class Log:
 
             newzip.writestr("readme.txt", str(self.log_metadata))
 
-        self.deleteLogFiles()
-        
+        return package_destination
+
+        # self.deleteLogFiles()
+
     def deleteLogFiles(self):
 
         all_log_files = self.RINEX_files

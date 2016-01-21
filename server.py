@@ -72,10 +72,9 @@ def index():
 def downloadLog(log_name):
     print("Got signal to download a log, name = " + str(log_name))
     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
-    # raw log path in the system
     raw_log_path = rtk.logm.log_path + "/" + log_name
-
-    return send_file(raw_log_path, as_attachment = True)
+    log_package_path = rtk.logm.createRINEXPackage(raw_log_path)
+    return send_file(log_package_path, as_attachment = True)
 
 @socketio.on("connect", namespace="/test")
 def testConnect():

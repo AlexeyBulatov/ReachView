@@ -56,6 +56,19 @@ class LogManager():
             if log is not None:
                 log.createLogPackage()
 
+    def createRINEXPackage(self, raw_log_path):
+        # create a RINEX package from the log if it's possible
+
+        # return raw log path if we failed to convert
+        result = raw_log_path
+
+        log = self.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+
+        if log is not None:
+            result = log.createLogPackage()
+
+        return result
+
     def updateAvailableLogs(self):
 
         # clean previous values
