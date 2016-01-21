@@ -46,12 +46,23 @@ class LogMetadata:
         self.extractDataFromString(convbin_output)
 
     def __str__(self):
-        to_print = "Log start time: " + str(self.start_timestamp) + "\n"
-        to_print += "Log stop time: " + str(self.stop_timestamp) + "\n"
+        to_print = "Log start time: " + self.formatTimestamp(self.start_timestamp) + "\n"
+        to_print += "Log stop time: " + self.formatTimestamp(self.stop_timestamp) + "\n"
         to_print += "Navigation messages parsed:\n"
         to_print += str(self.navigation_messages)
 
         return to_print
+
+    def formatTimestamp(self, timestamp):
+        # 19800106000000
+        timestamp = str(timestamp)
+
+        # date
+        human_readable_timestamp = timestamp[:4] + "-" + timestamp[4:6] + "-" + timestamp[6:8]
+        # time
+        human_readable_timestamp += " " + timestamp[8:10] + ":" + timestamp[10:12] + ":" + timestamp[12:14]
+
+        return human_readable_timestamp
 
     def countValidMessages(self):
 
