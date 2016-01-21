@@ -87,15 +87,15 @@ class Convbin:
 
 
 if __name__ == "__main__":
-    cb = Convbin("/home/egor/RTK/RTKLIB")
-    rlog = cb.convertRTKLIBLogToRINEX("/home/egor/RTK/convbin_test/rov_201601080935.ubx")
+    cb = Convbin("/home/reach/RTKLIB")
+    rlog = cb.convertRTKLIBLogToRINEX("/home/reach/logs/rov_201601210734.ubx")
     print(rlog)
-    print("base")
-    blog = cb.convertRTKLIBLogToRINEX("/home/egor/RTK/convbin_test/ref_201601080935.rtcm3")
-    print(blog)
-    print("Kinelog")
-    kinelog = KinematicLog(rlog, blog)
-    print(kinelog)
-    kinelog.createKinematicLogPackage("lol.zip")
-    rlog.createLogPackage("lol1.zip")
+    # print("base")
+    # blog = cb.convertRTKLIBLogToRINEX("/home/egor/RTK/convbin_test/ref_201601080935.rtcm3")
+    # print(blog)
+    # print("Kinelog")
+    # kinelog = KinematicLog(rlog, blog)
+    # print(kinelog)
+    # kinelog.createKinematicLogPackage("lol.zip")
+    # rlog.createLogPackage("lol1.zip")
 

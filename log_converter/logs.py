@@ -80,6 +80,10 @@ class LogMetadata:
         # example string(split into a list by spaces)
         # 2016/01/08 09:35:02-01/08 11:24:58:
 
+        # remove all the extra punctuation
+        raw_data = "".join(data_list)
+        raw_data = raw_data.translate(None, "/:\r")
+
         start_timestamp = raw_data.split("-")[0]
         stop_timestamp = raw_data.split("-")[1]
 

@@ -493,6 +493,8 @@ class RTKLIB:
 
         log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
 
+        print("Log conversion done!")
+
         if log is not None:
             if log.isValid():
                 result = log.createLogPackage()
