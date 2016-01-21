@@ -493,7 +493,7 @@ class RTKLIB:
         # get the size to determine approximate conversion time in seconds
         log_size = os.path.getsize(raw_log_path) / (1024*1024.0)
 
-        self.socketio.emit("converting log", {"name": log_filename}, namespace="/test")
+        self.socketio.emit("log conversion status", {"name": log_filename}, namespace="/test")
 
         log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
 
@@ -503,7 +503,7 @@ class RTKLIB:
             if log.isValid():
                 result = log.createLogPackage()
             else:
-                self.socketio.emit("converting log", {"name": log_filename, "status": "log invalid"}, namespace="/test")
+                self.socketio.emit("log conversion status", {"name": log_filename, "status": "log invalid"}, namespace="/test")
         else:
             print("Could not convert log. Is the extension wrong?")
 

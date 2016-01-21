@@ -20,6 +20,15 @@ function checkConfTitle() {
     }
 }
 
+function addConversionStatusDialog(log_being_converted) {
+    // insert a new list item to the log list
+    var logs_list = $("#logs_list");
+
+    logs_list.each(function(idx, li) {
+        var product = $(li);
+    }
+});
+
 $(document).on("pageinit", "#config_page", function() {
 
     console.info($("#config_select").val());
@@ -164,7 +173,7 @@ $(document).on("pageinit", "#config_page", function() {
                 config_to_send[current_id] = payload;
             }
         });
-        
+
         return (config_to_send);
     }
 
@@ -189,7 +198,7 @@ $(document).on("pageinit", "#config_page", function() {
 
             if (!validSymbols.test(config_name)) {
                 $('.space_alert').css('display', 'inline-block');
-            } 
+            }
             else{
                 config_name += '.conf';
                 $('.space_alert').css('display', 'none');
@@ -256,7 +265,7 @@ $(document).on("pageinit", "#config_page", function() {
                 $( "#popupPos" ).popup( "open");
             }
             else{
-                
+
                 console.groupCollapsed('Sending config ' + config_name + ' to save and restart:');
                     jQuery.each(config_to_send, function(i, val) {
                         console.groupCollapsed(val['parameter']);
@@ -335,9 +344,16 @@ $(document).on("pageinit", "#logs_page", function() {
 
         if($('.log_string').length == '0'){
             $('.empty_logs').css('display', 'block');
-    }
+        }
     });
 
+    // show conversion status by adding a new list view field under the log we are  trying to convert/download
+    socket.on("log conversion start", function(msg) {
+        var log_being_converted = msg.name;
+
+        // append a status window after the listview item
+        addConversionStatusDialog(log_being_converted);
+    }
 });
 
 $(document).on("pageinit", "#settings", function() {
