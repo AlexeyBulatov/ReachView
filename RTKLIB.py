@@ -493,7 +493,7 @@ class RTKLIB:
         # get the size to determine approximate conversion time in seconds
         log_size = os.path.getsize(raw_log_path) / (1024*1024.0)
 
-        self.socketio.emit("log conversion status", {"name": log_filename}, namespace="/test")
+        self.socketio.emit("log conversion start", {"name": log_filename}, namespace="/test")
 
         log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
 

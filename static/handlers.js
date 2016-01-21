@@ -23,11 +23,12 @@ function checkConfTitle() {
 function addConversionStatusDialog(log_being_converted) {
     // insert a new list item to the log list
     var logs_list = $("#logs_list");
+    var string_container = '<li><a href=# target="_blank" class="log_conversion_status_string">log conversion status</a></li>';
+    var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
 
-    logs_list.each(function(idx, li) {
-        var product = $(li);
-    }
-});
+    log_list_item.after(string_container);
+    logs_list.listview('refresh');
+}
 
 $(document).on("pageinit", "#config_page", function() {
 
@@ -351,9 +352,11 @@ $(document).on("pageinit", "#logs_page", function() {
     socket.on("log conversion start", function(msg) {
         var log_being_converted = msg.name;
 
+        console.log("Log conversion start");
+
         // append a status window after the listview item
         addConversionStatusDialog(log_being_converted);
-    }
+    });
 });
 
 $(document).on("pageinit", "#settings", function() {
