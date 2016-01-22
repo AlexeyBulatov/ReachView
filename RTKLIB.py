@@ -512,10 +512,10 @@ class RTKLIB:
                 conversion_result_package["conversion_status"] = "Conversion successful"
                 conversion_result_package["messages_parsed"] = log.log_metadata.formValidMessagesString()
             else:
-                conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data"
+                conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data. Downloading raw log"
         else:
             print("Could not convert log. Is the extension wrong?")
-            conversion_result_package["conversion_status"] = "Log conversion failed"
+            conversion_result_package["conversion_status"] = "Log conversion failed. Downloading raw log"
 
         self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
 
