@@ -392,11 +392,14 @@ $(document).on("pageinit", "#logs_page", function() {
     socket.on("log conversion results", function(msg) {
         var log_being_converted = msg.name;
         var conversion_status = msg.conversion_status;
+        var messages_parsed = msg.messages_parsed;
 
         console.log("Got conversion results:");
         console.log(log_being_converted + " " + conversion_status);
 
-        updateConversionStatusDialog(log_being_converted, conversion_status);
+        var update_message = conversion_status + ". " + messages_parsed;
+
+        updateConversionStatusDialog(log_being_converted, update_message);
     });
 });
 

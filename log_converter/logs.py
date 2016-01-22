@@ -74,6 +74,16 @@ class LogMetadata:
 
         return valid_messages
 
+    def formValidMessagesString(self):
+
+        to_print = "Messages inside: "
+
+        for msg_type, msg_count in self.navigation_messages.items():
+            if int(msg_count) > 0:
+                to_print += msg_type + ": " + msg_count + ", "
+
+        return to_print[:-2]
+
     def extractDataFromString(self, data_string):
         # example string:
         # 2016/01/08 09:35:02-01/08 11:24:58: O=32977 N=31 G=41 E=2

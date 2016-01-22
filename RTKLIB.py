@@ -497,7 +497,8 @@ class RTKLIB:
 
         conversion_result_package = {
             "name": log_filename,
-            "conversion_status": ""
+            "conversion_status": "",
+            "messages_parsed": ""
         }
 
         self.socketio.emit("log conversion start", start_package, namespace="/test")
@@ -509,6 +510,7 @@ class RTKLIB:
             if log.isValid():
                 result = log.createLogPackage()
                 conversion_result_package["conversion_status"] = "Conversion successful"
+                conversion_result_package["messages_parsed"] = log.log_metadata.formValidMessagesString()
             else:
                 conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data"
         else:
