@@ -21,18 +21,28 @@ function checkConfTitle() {
 }
 
 function addConversionStatusDialog(log_being_converted, conversion_time) {
-    // insert a new list item to the log list
-    var logs_list = $("#logs_list");
-    var string_container = formConversionStatusString(log_being_converted, conversion_time);
-    var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
+    // insert a new list item to the log list if does not exist yet
+    var dialog_id = log_being_converted + "_status";
+    dialog_id = dialog_id.replace(".", "_");
 
-    log_list_item.after(string_container);
-    logs_list.listview('refresh');
+    console.log("elemend id to search: " + dialog_id);
+    console.log("Adding or not? " + $("#" + dialog_id).length);
+
+    if ($("#" + dialog_id).length == 0) {
+        var logs_list = $("#logs_list");
+        var string_container = formConversionStatusString(log_being_converted, conversion_time);
+        var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
+
+        log_list_item.after(string_container);
+        logs_list.listview('refresh');
+    }
 }
 
 function formConversionStatusString(log_name, conversion_time) {
 
-    var resulting_string = '<li><a href=# target="_blank" class="log_conversion_status_string">';
+    var log_name_for_id = log_name.replace(".", "_");
+    var resulting_string = '<li><a href=# target="_blank" id="' + log_name_for_id + '_status" ';
+    resulting_string += 'class="log_conversion_status_string">';
     resulting_string += "Converting " + log_name + "... Approximate conversion time: " + conversion_time;
     resulting_string += '</a></li>';
 
