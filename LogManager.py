@@ -72,10 +72,22 @@ class LogManager():
 
         return "{0:.2f}".format(conversion_time)
 
-    def deleteLog(self, log_name):
+    def deleteLog(self, log_filename):
         # try to delete log if it exists
 
+        log_name, extension = os.path.splitext(log_filename)
+
+        # try to delete raw log
+        print("Deleting log" + log_name + extension)
         try:
-            os.remove(self.log_path + "/" + log_name)
+            os.remove(self.log_path + "/" + log_name + extension)
         except OSError, e:
             print ("Error: " + e.filename + " - " + e.strerror)
+
+        print("Deleting log" + log_name + ".zip")
+        try:
+            os.remove(self.log_path + "/" + log_name + ".zip")
+        except OSError, e:
+            print ("Error: " + e.filename + " - " + e.strerror)
+
+
