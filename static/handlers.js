@@ -22,7 +22,7 @@ function checkConfTitle() {
 
 function formConversionStatusDialog(dialog_id) {
 
-    var resulting_string = '<li><a href=# target="_blank" id="' + dialog_id + '" ';
+    var resulting_string = '<li data-icon="false"><a href=# target="_blank" id="' + dialog_id + '" ';
     resulting_string += 'class="log_conversion_status_string">';
     resulting_string += 'Waiting...</a></li>';
 
