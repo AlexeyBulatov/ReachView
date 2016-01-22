@@ -485,6 +485,27 @@ class RTKLIB:
 
         print(self.conm.available_configs)
 
+    def getRINEXPackage(self, raw_log_path):
+        # return RINEX package if it already exists
+        # create one if not
+        log_filename = os.path.basename(raw_log_path)
+        potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
+        result_path = ""
+
+        if os.path.isfile(potential_zip_path):
+            result_path = potential_zip_path
+            already_converted_package = {
+                "name": log_filename,
+                "conversion_status": "Log already converted. Details inside the package",
+                "messages_parsed": ""
+            }
+            self.socketio.emit("log conversion start", already_converted_package, namespace="/test")
+            self.socketio.emit("log conversion results", already_converted_package, namespace="/test")
+        else:
+            result_path = self.createRINEXPackage(raw_log_path)
+
+        return result_path
+
     def createRINEXPackage(self, raw_log_path):
         # create a RINEX package before download
         # in case we fail to convert, return the raw log path back
