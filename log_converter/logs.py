@@ -27,6 +27,17 @@ import os
 
 class LogMetadata:
 
+    message_names = {
+        "OBS": "OBS",
+        "NAV": "GPS nav",
+        "GNAV": "GLONASS nav",
+        "HNAV": "GEO nav",
+        "QNAV": "QZSS nav",
+        "LNAV": "Galileo nav",
+        "SBAS": "SBAS log",
+        "Errors": "Errors"
+    }
+
     def __init__(self, convbin_output):
 
         self.start_timestamp = 0
@@ -49,7 +60,7 @@ class LogMetadata:
         to_print = "Log start time: " + self.formatTimestamp(self.start_timestamp) + "\n"
         to_print += "Log stop time:  " + self.formatTimestamp(self.stop_timestamp) + "\n"
         to_print += "Navigation messages parsed:\n"
-        to_print += str(self.navigation_messages)
+        to_print += self.formValidMessagesString()
 
         return to_print
 
@@ -76,11 +87,15 @@ class LogMetadata:
 
     def formValidMessagesString(self):
 
+        correct_order = ["OBS", "NAV", "GNAV", "HNAV", "QNAV", "LNAV", "SBAS", "Errors"]
+
         to_print = "Messages inside: "
 
-        for msg_type, msg_count in self.navigation_messages.items():
+        for msg in correct_order:
+            msg_type = msg
+            msg_count = self.navigation_messages[msg_type]
             if int(msg_count) > 0:
-                to_print += msg_type + ": " + msg_count + ", "
+                to_print += self.message_names[msg_type] + ": " + msg_count + ", "
 
         return to_print[:-2]
 

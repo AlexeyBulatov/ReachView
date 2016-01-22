@@ -52,7 +52,7 @@ function addConversionStatusDialog(log_being_converted, conversion_time) {
         var logs_list = $("#logs_list");
         var string_container = formConversionStatusDialog(dialog_id);
         var log_list_item = $('a[href*="' + log_being_converted + '"]');
-        var initial_status = "Converting log...Approximate time left left: " + conversion_time;
+        var initial_status = "Converting log...Approximate time left: " + conversion_time;
 
         log_list_item.append(string_container);
         updateConversionStatusDialog(log_being_converted, initial_status);
