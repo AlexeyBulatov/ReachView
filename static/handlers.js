@@ -20,6 +20,26 @@ function checkConfTitle() {
     }
 }
 
+function formConversionStatusDialog(dialog_id) {
+
+    var resulting_string = '<li><a href=# target="_blank" id="' + dialog_id + '" ';
+    resulting_string += 'class="log_conversion_status_string">';
+    resulting_string += 'Waiting...</a></li>';
+
+    return resulting_string;
+}
+
+function updateConversionStatusDialog(log_being_converted, conversion_status) {
+    var dialog_id = log_being_converted + "_status";
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating dialog id == '" + dialog_id + "' with status " + conversion_status);
+
+    $("#" + dialog_id).text(conversion_status)
+    logs_list.listview("refresh");
+}
+
 function addConversionStatusDialog(log_being_converted, conversion_time) {
     // insert a new list item to the log list if does not exist yet
     var dialog_id = log_being_converted + "_status";
@@ -30,23 +50,14 @@ function addConversionStatusDialog(log_being_converted, conversion_time) {
 
     if ($("#" + dialog_id).length == 0) {
         var logs_list = $("#logs_list");
-        var string_container = formConversionStatusString(log_being_converted, conversion_time);
+        var string_container = formConversionStatusDialog(dialog_id);
         var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
+        var initial_status = "Converting log...Approximate time left left: " + conversion_time;
 
         log_list_item.after(string_container);
+        updateConversionStatusDialog(log_being_converted, initial_status);
         logs_list.listview('refresh');
     }
-}
-
-function formConversionStatusString(log_name, conversion_time) {
-
-    var log_name_for_id = log_name.replace(".", "_");
-    var resulting_string = '<li><a href=# target="_blank" id="' + log_name_for_id + '_status" ';
-    resulting_string += 'class="log_conversion_status_string">';
-    resulting_string += "Converting " + log_name + "... Approximate conversion time: " + conversion_time;
-    resulting_string += '</a></li>';
-
-    return resulting_string;
 }
 
 $(document).on("pageinit", "#config_page", function() {
@@ -377,6 +388,16 @@ $(document).on("pageinit", "#logs_page", function() {
         // append a status window after the listview item
         addConversionStatusDialog(log_being_converted, time_estimate);
     });
+
+    socket.on("log conversion results", function(msg) {
+        var log_being_converted = msg.name;
+        var conversion_status = msg.conversion_status;
+
+        console.log("Got conversion results:");
+        console.log(log_being_converted + " " + conversion_status);
+
+        updateConversionStatusDialog(log_being_converted, conversion_status);
+    });
 });
 
 $(document).on("pageinit", "#settings", function() {
@@ -384,11 +405,11 @@ $(document).on("pageinit", "#settings", function() {
     $("#wifi_link").attr("href", location.protocol + '//' + location.host + ":5000");
 
     $(document).on("click", "#update_button", function(e) {
-            var online = navigator.onLine;
-            var updateStatus = 120;
+        var online = navigator.onLine;
+        var updateStatus = 120;
 
-            if(online){
-                console.log("Sending update message");
+        if (online) {
+            console.log("Sending update message");
 
             $('.load_update').css('display', 'block');
             var intervalID = setInterval(function(){
@@ -398,9 +419,9 @@ $(document).on("pageinit", "#settings", function() {
 
             setTimeout(function(){clearInterval(intervalID);$('.load_update').html('<span style="color:green;position:relative;top:20px;">Refresh the page</span>');}, 1000*60*2);
             socket.emit("update reachview");
-           }
-           else
-               $('.connect').text('Internet connection is lost');
+        }
+        else
+            $('.connect').text('Internet connection is lost');
 
         return false;
     });

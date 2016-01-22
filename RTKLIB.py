@@ -490,14 +490,17 @@ class RTKLIB:
         # in case we fail to convert, return the raw log path back
         result = raw_log_path
         log_filename = os.path.basename(raw_log_path)
-
         start_package = {
             "name": log_filename,
             "time": self.logm.calculateConversionTime(raw_log_path)
         }
 
-        self.socketio.emit("log conversion start", start_package, namespace="/test")
+        conversion_result_package = {
+            "name": log_filename,
+            "conversion_status": ""
+        }
 
+        self.socketio.emit("log conversion start", start_package, namespace="/test")
         log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
 
         print("Log conversion done!")
@@ -505,10 +508,14 @@ class RTKLIB:
         if log is not None:
             if log.isValid():
                 result = log.createLogPackage()
+                conversion_result_package["conversion_status"] = "Conversion successful"
             else:
-                self.socketio.emit("log conversion status", {"name": log_filename, "status": "log invalid"}, namespace="/test")
+                conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data"
         else:
             print("Could not convert log. Is the extension wrong?")
+            conversion_result_package["conversion_status"] = "Log conversion failed"
+
+        self.socketio.emit("log conversion results", conversion_result_package, namespace="/test")
 
         print("Log conversion results:")
         print(str(log))
