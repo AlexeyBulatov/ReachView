@@ -221,9 +221,16 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
     <div data-role="header">
         <div data-role="navbar" id="navbar3">
             <ul>
-                <li><a href="#status_page" class="tab">Status</a></li>
-                <li><a href="#config_page" class="tab">Config</a></li>
-                <li style="position:relative;padding-right:33.5px"><a href="#logs_page" class="tab ui-btn-active ui-state-persist">Logs</a><a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a></li>
+                <li>
+                    <a href="#status_page" class="tab">Status</a>
+                </li>
+                <li>
+                    <a href="#config_page" class="tab">Config</a>
+                </li>
+                <li style="position:relative;padding-right:33.5px">
+                    <a href="#logs_page" class="tab ui-btn-active ui-state-persist">Logs</a>
+                    <a href="#settings" data-role="button" data-icon="gear" data-iconpos="notext" style="position:absolute;right:0;top:0;width:33.5px;height:33.5px;padding:0px;"></a>
+                </li>
             </ul>
         </div>
     </div>
@@ -235,7 +242,9 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a" data-split-icon="delete">
             {% for log in logs %}
                 <li>
-                    <a href="/logs/{{ log.name }}" target="_blank" class="log_string" download>{{ log.name }},{{ log.size }}</a>
+                    <a href="/logs/{{ log.name }}" target="_blank" class="log_string" download>
+                        <h2>{{ log.name }},{{ log.size }}</h2>
+                    </a>
                     <a href="#" class='delete-log-button'>Delete</a>
                 </li>
             {% endfor %}

@@ -22,9 +22,9 @@ function checkConfTitle() {
 
 function formConversionStatusDialog(dialog_id) {
 
-    var resulting_string = '<li data-icon="false"><a href=# target="_blank" id="' + dialog_id + '" ';
+    var resulting_string = '<p id="' + dialog_id + '" ';
     resulting_string += 'class="log_conversion_status_string">';
-    resulting_string += 'Waiting...</a></li>';
+    resulting_string += 'Waiting...</p>';
 
     return resulting_string;
 }
@@ -36,7 +36,7 @@ function updateConversionStatusDialog(log_being_converted, conversion_status) {
 
     console.log("Updating dialog id == '" + dialog_id + "' with status " + conversion_status);
 
-    $("#" + dialog_id).text(conversion_status)
+    $("#" + dialog_id).html("<strong>" + conversion_status + "</strong>");
     logs_list.listview("refresh");
 }
 
@@ -51,10 +51,10 @@ function addConversionStatusDialog(log_being_converted, conversion_time) {
     if ($("#" + dialog_id).length == 0) {
         var logs_list = $("#logs_list");
         var string_container = formConversionStatusDialog(dialog_id);
-        var log_list_item = $('a[href*="' + log_being_converted + '"]').parent();
+        var log_list_item = $('a[href*="' + log_being_converted + '"]');
         var initial_status = "Converting log...Approximate time left left: " + conversion_time;
 
-        log_list_item.after(string_container);
+        log_list_item.append(string_container);
         updateConversionStatusDialog(log_being_converted, initial_status);
         logs_list.listview('refresh');
     }
@@ -350,7 +350,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
         $('.log_string').each(function(){
             var log_state = '';
-            var splitLogString = $(this).text().split(',');
+            var splitLogString = $(this).find("h2").text().split(',');
 
             if(splitLogString[0].slice(0, 3) == 'rov')
                 log_state = 'Rover';
@@ -361,8 +361,7 @@ $(document).on("pageinit", "#logs_page", function() {
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
-
-            $(this).text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+            $(this).find("h2").text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
         });
     }
 
