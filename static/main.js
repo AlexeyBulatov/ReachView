@@ -102,8 +102,6 @@ $(document).ready(function () {
         delete_options_hidden.find('.default_config').remove();
 
         select_options.val(msg.rover.current_config);
-        console.info(select_options.val());
-        console.info(msg.rover.current_config);
 
         if (msg.state == "rover") {
             $('input:radio[name="radio_base_rover"]').filter('[value="rover"]').next().click();

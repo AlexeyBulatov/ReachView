@@ -504,6 +504,9 @@ class RTKLIB:
         else:
             result_path = self.createRINEXPackage(raw_log_path)
 
+        log_url_tail = "/logs/download/" + os.path.basename(result_path)
+        self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
+
         return result_path
 
     def createRINEXPackage(self, raw_log_path):
@@ -519,7 +522,8 @@ class RTKLIB:
         conversion_result_package = {
             "name": log_filename,
             "conversion_status": "",
-            "messages_parsed": ""
+            "messages_parsed": "",
+            "log_url_tail": ""
         }
 
         self.socketio.emit("log conversion start", start_package, namespace="/test")
@@ -544,6 +548,12 @@ class RTKLIB:
         print(str(log))
 
         return result
+
+    def processLogPackage(self, raw_log_path):
+        conversion_thread = None
+
+        conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
+        conversion_thread.run()
 
     def saveState(self):
         # save current state for future resurrection:

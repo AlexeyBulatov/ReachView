@@ -242,7 +242,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a" data-split-icon="delete">
             {% for log in logs %}
                 <li>
-                    <a href="/logs/{{ log.name }}" target="_blank" class="log_string" download>
+                    <a href="/logs/{{ log.name }}" class="log_string">
                         <h2>{{ log.name }},{{ log.size }}</h2>
                     </a>
                     <a href="#" class='delete-log-button'>Delete</a>
