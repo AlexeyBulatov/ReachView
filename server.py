@@ -44,6 +44,7 @@ from NetworkTools import getNetworkStatus
 app = Flask(__name__)
 app.template_folder = "."
 app.debug = False
+app.threaded = True
 app.config["SECRET_KEY"] = "secret!"
 app.config["UPLOAD_FOLDER"] = "../logs"
 

@@ -375,10 +375,6 @@ class RtkController:
                                 # 2 to be base
                                 self.obs_base[name] = level
 
-                            # print("print from getObs:\n" + str(self.obs))
-
-    #                print("Useful info extracted from status: ")
-    #                print(self.info)
                 else:
                     self.obs_base = {}
                     self.obs_rover = {}
