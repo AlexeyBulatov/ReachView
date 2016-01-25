@@ -365,6 +365,14 @@ $(document).on("pageinit", "#logs_page", function() {
         });
     }
 
+    $('.log_string').each(function() {
+        $(this).on("click", function() {
+            var log_to_process = $(this).parent().children('.log_string').attr('id').slice(6);
+            console.log("Request to process log " + log_to_process);
+            socket.emit("process log", {"name": log_to_process});
+        })
+    });
+
     $('.delete-log-button').click(function(){
         var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
         $(this).parent().remove();
@@ -372,7 +380,7 @@ $(document).on("pageinit", "#logs_page", function() {
         console.log("Delete log: " + log_to_delete);
         socket.emit("delete log", {"name": log_to_delete});
 
-        if($('.log_string').length == '0'){
+        if($('.log_string').length == '0') {
             $('.empty_logs').css('display', 'block');
         }
     });
@@ -405,7 +413,7 @@ $(document).on("pageinit", "#logs_page", function() {
         console.log("Log download path == " + msg.log_url_tail);
 
         var full_log_url = location.protocol + '//' + location.host + msg.log_url_tail;
-        window.location.href = full_log_url;
+        // window.location.href = full_log_url;
     });
 });
 

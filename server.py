@@ -68,14 +68,14 @@ def index():
     print("AVAILABLE LOGS == " + str(rtk.logm.available_logs))
     return render_template("index.html", logs = rtk.logm.available_logs, app_version = app_version, network_status = getNetworkStatus())
 
-@app.route("/logs/<path:log_name>")
-def processLog(log_name):
+# @app.route("/logs/<path:log_name>")
+# def processLog(log_name):
 
-    print("Got signal to download a log, name = " + str(log_name))
-    print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
+#     print("Got signal to download a log, name = " + str(log_name))
+#     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
 
-    raw_log_path = rtk.logm.log_path + "/" + log_name
-    rtk.processLogPackage(raw_log_path)
+#     raw_log_path = rtk.logm.log_path + "/" + log_name
+#     rtk.processLogPackage(raw_log_path)
 
     # log_package_path = rtk.getRINEXPackage(raw_log_path)
     # print("Sending log file " + log_package_path)
@@ -164,6 +164,16 @@ def writeConfigBase(json):
 @socketio.on("delete log", namespace="/test")
 def deleteLog(json):
     rtk.logm.deleteLog(json.get("name"))
+
+@socketio.on("process log", namespace="/test")
+def processLog(json):
+    log_name = json.get("name")
+
+    print("Got signal to download a log, name = " + str(log_name))
+    print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
+
+    raw_log_path = rtk.logm.log_path + "/" + log_name
+    rtk.processLogPackage(raw_log_path)
 
 #### Delete config ####
 @socketio.on("delete config", namespace="/test")
