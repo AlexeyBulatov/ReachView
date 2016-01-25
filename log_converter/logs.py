@@ -167,7 +167,7 @@ class LogMetadata:
 
 class Log:
 
-    rinex_file_extensions = [".obs", ".nav", ".gnav", ".hnav", ".qnav", ".lnav", ".sbas"]
+    rinex_file_extensions = [".obs", ".nav", ".gnav", ".hnav", ".qnav", ".lnav", ".sbs"]
 
     def __init__(self, log_path, log_metadata):
 
