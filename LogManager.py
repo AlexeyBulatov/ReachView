@@ -64,8 +64,13 @@ class LogManager():
     def formTimeString(self, seconds):
         # form a x minutes y seconds string from seconds
         m, s = divmod(seconds, 60)
+
         s = math.ceil(s)
-        return "{:.0f} minutes {:.0f} seconds".format(m, s)
+
+        format_string = "{0:.0f} minutes " if m > 0 else ""
+        format_string += "{1:.0f} seconds"
+
+        return format_string.format(m, s)
 
     def calculateConversionTime(self, log_path):
         # calculate time to convert based on log size and format
