@@ -238,9 +238,10 @@ class Log:
 
             newzip.writestr("readme.txt", str(self.log_metadata))
 
-        return package_destination
-
+        # delete unzipped files
         self.deleteLogFiles()
+
+        return package_destination
 
     def deleteLogFiles(self):
 

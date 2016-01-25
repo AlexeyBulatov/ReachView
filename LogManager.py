@@ -22,6 +22,7 @@
 # along with ReachView.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import math
 from glob import glob
 
 from log_converter import convbin
@@ -60,6 +61,12 @@ class LogManager():
 
         self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
 
+    def formTimeString(self, seconds):
+        # form a x minutes y seconds string from seconds
+        m, s = divmod(seconds, 60)
+        s = math.ceil(s)
+        return "{:.0f} minutes {:.0f} seconds".format(m, s)
+
     def calculateConversionTime(self, log_path):
         # calculate time to convert based on log size and format
         log_size = os.path.getsize(log_path) / (1024*1024.0)
@@ -70,7 +77,7 @@ class LogManager():
         elif log_path.endswith("ubx"):
             conversion_time = 1.2 * log_size
 
-        return "{0:.2f}".format(conversion_time)
+        return self.formTimeString(conversion_time)
 
     def deleteLog(self, log_filename):
         # try to delete log if it exists
