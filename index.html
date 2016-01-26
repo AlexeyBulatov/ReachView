@@ -243,7 +243,7 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
             {% for log in logs %}
                 <li>
                     <a href="#" id="/logs/{{ log.name }}" class="log_string">
-                        <h2>{{ log.name }},{{ log.size }}</h2>
+                        <h2>{{ log.name }},{{ log.size }},{{ log.format }}</h2>
                         <p class="log_conversion_status_string"></p>
                     </a>
                     <a href="#" class='delete-log-button'>Delete</a>

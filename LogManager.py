@@ -54,9 +54,22 @@ class LogManager():
                 log_size = os.path.getsize(log) / (1024*1024.0)
                 log_size = "{0:.2f}".format(log_size)
 
+
+                potential_zip_path = os.path.splitext(log)[0] + ".zip"
+
+                log_format = "LOL"
+                if os.path.isfile(potential_zip_path):
+                    log_format = "RINEX"
+                else:
+                    if log_name.endswith("ubx"):
+                        log_format = "UBX"
+                    elif log_name.endswith("rtcm3"):
+                        log_format = "RTCM3"
+
                 self.available_logs.append({
                     "name": log_name,
-                    "size": log_size
+                    "size": log_size,
+                    "format": log_format
                 })
 
         self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)

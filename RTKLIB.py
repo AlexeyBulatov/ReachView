@@ -567,8 +567,8 @@ class RTKLIB:
         print("Log conversion done!")
 
         if log is not None:
+            result = log.createLogPackage()
             if log.isValid():
-                result = log.createLogPackage()
                 conversion_result_package["conversion_status"] = "Conversion successful"
                 conversion_result_package["messages_parsed"] = log.log_metadata.formValidMessagesString()
             else:

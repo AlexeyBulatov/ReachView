@@ -20,6 +20,16 @@ function checkConfTitle() {
     }
 }
 
+function extractTimeFromLogName(log_name) {
+    var hours = log_name.slice(12, 14);
+    var minutes = log_name.slice(14, 16);
+    var day = log_name.slice(10, 12);
+    var month = log_name.slice(8, 10);
+    var year = log_name.slice(4, 8);
+
+    return hours + ":" + minutes + " " + day + "." + month + "." + year;
+}
+
 function formConversionStatusDialog(dialog_id) {
 
     var resulting_string = '<p id="' + dialog_id + '" ';
@@ -346,7 +356,11 @@ $(document).on("pageinit", "#logs_page", function() {
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
 
-            $(this).find("h2").text(log_state + ': ' + splitLogString[0].slice(12, 14) + ':' + splitLogString[0].slice(14, 16) + ' ' + splitLogString[0].slice(10, 12) + '.' + splitLogString[0].slice(8, 10) + '.' + splitLogString[0].slice(4, 8) + ' (' + splitLogString[1] + 'MB)');
+            var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var log_size = "(" + splitLogString[1] + " MB)"
+            var log_format = splitLogString[2];
+
+            $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
         });
     }
 
