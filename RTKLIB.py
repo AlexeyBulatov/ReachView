@@ -486,15 +486,27 @@ class RTKLIB:
 
     def processLogPackage(self, raw_log_path):
 
-        if self.conversion_thread is None:
-            conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
-            conversion_thread.run()
-        else:
+        currently_converting = False
+
+        try:
+            print("conversion thread is alive " + str(self.conversion_thread.isAlive()))
+            currently_converting = self.conversion_thread.isAlive()
+        except AttributeError:
+            print("wtf")
+            pass
+
+        if currently_converting:
+            print("Already converting!!!!!!!!")
             error_msg = {
                 "name": os.path.basename(raw_log_path),
-                "conversion_status": "Another log is being converted at the moment. Please wait."
+                "conversion_status": "Another log is being converted at the moment. Please wait",
+                "messages_parsed": ""
             }
-            self.socketio.emit("log conversion start", error_msg, namespace="/test")
+            self.socketio.emit("log conversion results", error_msg, namespace="/test")
+        else:
+            print("Starting a new bg conversion thread")
+            self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
+            self.conversion_thread.start()
 
     def getRINEXPackage(self, raw_log_path):
         # return RINEX package if it already exists
@@ -517,8 +529,6 @@ class RTKLIB:
 
         log_url_tail = "/logs/download/" + os.path.basename(result_path)
         self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
-
-        self.conversion_thread = None
 
         return result_path
 
