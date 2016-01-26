@@ -494,18 +494,27 @@ class RTKLIB:
         except AttributeError:
             pass
 
-        if currently_converting:
+        log_filename = os.path.basename(raw_log_path)
+        potential_zip_path = os.path.splitext(raw_log_path)[0] + ".zip"
+
+        can_send_file = True
+
+        # can't send if there is no converted package and we are busy
+        if (not os.path.isfile(potential_zip_path)) and (currently_converting):
+            can_send_file = False
+
+        if can_send_file:
+            print("Starting a new bg conversion thread for log " + raw_log_path)
+            self.logm.log_being_converted = raw_log_path
+            self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
+            self.conversion_thread.start()
+        else:
             error_msg = {
                 "name": os.path.basename(raw_log_path),
                 "conversion_status": "Another log is being converted at the moment. Please wait",
                 "messages_parsed": ""
             }
             self.socketio.emit("log conversion results", error_msg, namespace="/test")
-        else:
-            print("Starting a new bg conversion thread for log " + raw_log_path)
-            self.logm.log_being_converted = raw_log_path
-            self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
-            self.conversion_thread.start()
 
     def getRINEXPackage(self, raw_log_path):
         # return RINEX package if it already exists
@@ -521,7 +530,7 @@ class RTKLIB:
                 "conversion_status": "Log already converted. Details inside the package",
                 "messages_parsed": ""
             }
-            self.socketio.emit("log conversion start", already_converted_package, namespace="/test")
+            # self.socketio.emit("log conversion start", already_converted_package, namespace="/test")
             self.socketio.emit("log conversion results", already_converted_package, namespace="/test")
         else:
             result_path = self.createRINEXPackage(raw_log_path)
