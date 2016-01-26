@@ -80,6 +80,7 @@ class RTKLIB:
         self.server_not_interrupted = True
         self.satellite_thread = None
         self.coordinate_thread = None
+        self.conversion_thread = None
 
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
@@ -419,8 +420,6 @@ class RTKLIB:
         else:
             config_file = config["config_file_name"]
 
-        print("Package got: " + str(config))
-
         print("Got signal to read the rover config by the name " + str(config_file))
         print("Sending rover config " + str(config_file))
 
@@ -485,6 +484,18 @@ class RTKLIB:
 
         print(self.conm.available_configs)
 
+    def processLogPackage(self, raw_log_path):
+
+        if self.conversion_thread is None:
+            conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
+            conversion_thread.run()
+        else:
+            error_msg = {
+                "name": os.path.basename(raw_log_path),
+                "conversion_status": "Another log is being converted at the moment. Please wait."
+            }
+            self.socketio.emit("log conversion start", error_msg, namespace="/test")
+
     def getRINEXPackage(self, raw_log_path):
         # return RINEX package if it already exists
         # create one if not
@@ -507,6 +518,8 @@ class RTKLIB:
         log_url_tail = "/logs/download/" + os.path.basename(result_path)
         self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
 
+        self.conversion_thread = None
+
         return result_path
 
     def createRINEXPackage(self, raw_log_path):
@@ -514,9 +527,12 @@ class RTKLIB:
         # in case we fail to convert, return the raw log path back
         result = raw_log_path
         log_filename = os.path.basename(raw_log_path)
+
+        conversion_time_string = self.logm.calculateConversionTime(raw_log_path)
+
         start_package = {
             "name": log_filename,
-            "time": self.logm.calculateConversionTime(raw_log_path)
+            "conversion_time": "Converting log to RINEX...Approximate time left: " + conversion_time_string
         }
 
         conversion_result_package = {
@@ -548,12 +564,6 @@ class RTKLIB:
         print(str(log))
 
         return result
-
-    def processLogPackage(self, raw_log_path):
-        conversion_thread = None
-
-        conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
-        conversion_thread.run()
 
     def saveState(self):
         # save current state for future resurrection:

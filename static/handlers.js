@@ -40,26 +40,6 @@ function updateConversionStatusDialog(log_being_converted, conversion_status) {
     logs_list.listview("refresh");
 }
 
-function addConversionStatusDialog(log_being_converted, conversion_time) {
-    // insert a new list item to the log list if does not exist yet
-    var dialog_id = log_being_converted + "_status";
-    dialog_id = dialog_id.replace(".", "_");
-
-    console.log("elemend id to search: " + dialog_id);
-    console.log("Adding or not? " + $("#" + dialog_id).length);
-
-    if ($("#" + dialog_id).length == 0) {
-        var logs_list = $("#logs_list");
-        var string_container = formConversionStatusDialog(dialog_id);
-        var log_list_item = $('a[href*="' + log_being_converted + '"]');
-        var initial_status = "Converting log...Approximate time left: " + conversion_time;
-
-        log_list_item.append(string_container);
-        updateConversionStatusDialog(log_being_converted, initial_status);
-        logs_list.listview('refresh');
-    }
-}
-
 $(document).on("pageinit", "#config_page", function() {
 
     console.info($("#config_select").val());
@@ -352,6 +332,11 @@ $(document).on("pageinit", "#logs_page", function() {
             var log_state = '';
             var splitLogString = $(this).find("h2").text().split(',');
 
+            var paragraph_id = splitLogString[0] + "_status";
+            paragraph_id = paragraph_id.replace(".", "_");
+
+            $(this).find("p").attr("id", paragraph_id);
+
             if(splitLogString[0].slice(0, 3) == 'rov')
                 log_state = 'Rover';
             else if(splitLogString[0].slice(0, 3) == 'ref')
@@ -370,7 +355,7 @@ $(document).on("pageinit", "#logs_page", function() {
             var log_to_process = $(this).parent().children('.log_string').attr('id').slice(6);
             console.log("Request to process log " + log_to_process);
             socket.emit("process log", {"name": log_to_process});
-        })
+        });
     });
 
     $('.delete-log-button').click(function(){
@@ -388,12 +373,12 @@ $(document).on("pageinit", "#logs_page", function() {
     // show conversion status by adding a new list view field under the log we are  trying to convert/download
     socket.on("log conversion start", function(msg) {
         var log_being_converted = msg.name;
-        var time_estimate = msg.time;
+        var time_estimate = msg.conversion_time;
 
         console.log("Log conversion start");
 
         // append a status window after the listview item
-        addConversionStatusDialog(log_being_converted, time_estimate);
+        updateConversionStatusDialog(log_being_converted, time_estimate);
     });
 
     socket.on("log conversion results", function(msg) {
@@ -405,7 +390,6 @@ $(document).on("pageinit", "#logs_page", function() {
         console.log(log_being_converted + " " + conversion_status);
 
         var update_message = conversion_status + ". " + messages_parsed;
-
         updateConversionStatusDialog(log_being_converted, update_message);
     });
 
