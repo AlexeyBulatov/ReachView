@@ -399,6 +399,11 @@ $(document).on("pageinit", "#logs_page", function() {
         var full_log_url = location.protocol + '//' + location.host + msg.log_url_tail;
         window.location.href = full_log_url;
     });
+
+    socket.on("clean busy messages", function(msg) {
+        console.log("Clearing busy messages");
+        $(".log_conversion_status_string:contains('Please wait')").html("");
+    });
 });
 
 $(document).on("pageinit", "#settings", function() {

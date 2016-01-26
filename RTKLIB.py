@@ -82,6 +82,8 @@ class RTKLIB:
         self.coordinate_thread = None
         self.conversion_thread = None
 
+        self.log_being_converted = ""
+
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         self.loadState()
@@ -492,11 +494,9 @@ class RTKLIB:
             print("conversion thread is alive " + str(self.conversion_thread.isAlive()))
             currently_converting = self.conversion_thread.isAlive()
         except AttributeError:
-            print("wtf")
             pass
 
         if currently_converting:
-            print("Already converting!!!!!!!!")
             error_msg = {
                 "name": os.path.basename(raw_log_path),
                 "conversion_status": "Another log is being converted at the moment. Please wait",
@@ -504,7 +504,8 @@ class RTKLIB:
             }
             self.socketio.emit("log conversion results", error_msg, namespace="/test")
         else:
-            print("Starting a new bg conversion thread")
+            print("Starting a new bg conversion thread for log " + raw_log_path)
+            self.log_being_converted = raw_log_path
             self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
             self.conversion_thread.start()
 
@@ -530,7 +531,15 @@ class RTKLIB:
         log_url_tail = "/logs/download/" + os.path.basename(result_path)
         self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
 
+        self.cleanBusyMessages()
+        self.log_being_converted = ""
+
         return result_path
+
+    def cleanBusyMessages(self):
+        # if user tried to convert other logs during conversion, he got an error message
+        # this function clears them to show it's ok to convert again
+        self.socketio.emit("clean busy messages", {}, namespace="/test")
 
     def createRINEXPackage(self, raw_log_path):
         # create a RINEX package before download
