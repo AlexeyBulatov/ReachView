@@ -82,8 +82,6 @@ class RTKLIB:
         self.coordinate_thread = None
         self.conversion_thread = None
 
-        self.log_being_converted = ""
-
         # we try to restore previous state
         # in case we can't, we start as rover in single mode
         self.loadState()
@@ -505,7 +503,7 @@ class RTKLIB:
             self.socketio.emit("log conversion results", error_msg, namespace="/test")
         else:
             print("Starting a new bg conversion thread for log " + raw_log_path)
-            self.log_being_converted = raw_log_path
+            self.logm.log_being_converted = raw_log_path
             self.conversion_thread = Thread(target = self.getRINEXPackage, args = (raw_log_path, ))
             self.conversion_thread.start()
 
@@ -532,7 +530,7 @@ class RTKLIB:
         self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
 
         self.cleanBusyMessages()
-        self.log_being_converted = ""
+        self.logm.log_being_converted = ""
 
         return result_path
 

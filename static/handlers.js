@@ -51,27 +51,52 @@ function updateConversionStatusDialog(log_being_converted, conversion_status) {
 }
 
 function setConversionTimer(log_being_converted, time_string) {
-
-    var dialog_id = log_being_converted + "_status";
-    dialog_id = dialog_id.replace(".", "_");
-
-    console.log("Setting conversion timer for " + dialog_id);
-    console.log("Timer string is " + time_string);
-
-    time = parseInt(time_string, 10);
-
-    var intervalID = setInterval(function() {
-        --time;
-        var formatted_time = Math.floor(time / 60) + ' minutes ' + time % 60 + ' seconds';
         var msg = "Converting log to RINEX...Approximate time left: ";
-        $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
-    }, 1000);
+        var formatted_time = Math.floor(time_string / 60) + ' minutes ' + time_string % 60 + ' seconds';
 
-    setTimeout(function() {
-        clearInterval(intervalID);
-        $('#' + dialog_id).html("Your download will begin shortly");
-    }, time * 1000);
-}
+        var dialog_id = log_being_converted + "_status";
+        dialog_id = dialog_id.replace(".", "_");
+
+        $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+
+        console.log("Setting conversion timer for " + dialog_id);
+        console.log("Timer string is " + time_string);
+
+        var intervalID = setInterval(function() {
+           --time_string;
+           formatted_time = Math.floor(time_string / 60) + ' minutes ' + time_string % 60 + ' seconds';
+
+           $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+        }, 1000);
+
+        setTimeout(function() {
+           clearInterval(intervalID);
+           $('#' + dialog_id).html("Your download will begin shortly");
+        }, time_string * 1000);
+    }
+
+// function setConversionTimer(log_being_converted, time_string) {
+
+//     var dialog_id = log_being_converted + "_status";
+//     dialog_id = dialog_id.replace(".", "_");
+
+//     console.log("Setting conversion timer for " + dialog_id);
+//     console.log("Timer string is " + time_string);
+
+//     time = parseInt(time_string, 10);
+
+//     var intervalID = setInterval(function() {
+//         --time;
+//         var formatted_time = Math.floor(time / 60) + ' minutes ' + time % 60 + ' seconds';
+//         var msg = "Converting log to RINEX...Approximate time left: ";
+//         $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+//     }, 1000);
+
+//     setTimeout(function() {
+//         clearInterval(intervalID);
+//         $('#' + dialog_id).html("Your download will begin shortly");
+//     }, time * 1000);
+// }
 
 $(document).on("pageinit", "#config_page", function() {
 
@@ -384,6 +409,10 @@ $(document).on("pageinit", "#logs_page", function() {
                 log_state = 'Base';
 
             $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
+
+            if(splitLogString[3] == "True") {
+                updateConversionStatusDialog(splitLogString[0], "This is log is being converted. Please wait");
+            }
         });
     }
 

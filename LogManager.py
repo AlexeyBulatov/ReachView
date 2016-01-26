@@ -34,6 +34,8 @@ class LogManager():
         self.log_path = log_path
         self.convbin = convbin.Convbin(rtklib_path)
 
+        self.log_being_converted = ""
+
         self.available_logs = []
         self.updateAvailableLogs()
 
@@ -66,10 +68,13 @@ class LogManager():
                     elif log_name.endswith("rtcm3"):
                         log_format = "RTCM3"
 
+                is_being_converted = True if log == self.log_being_converted else False
+
                 self.available_logs.append({
                     "name": log_name,
                     "size": log_size,
-                    "format": log_format
+                    "format": log_format,
+                    "is_being_converted": is_being_converted
                 })
 
         self.available_logs.sort(key = lambda log: log["name"][4:], reverse = True)
