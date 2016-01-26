@@ -551,7 +551,7 @@ class RTKLIB:
 
         start_package = {
             "name": log_filename,
-            "conversion_time": "Converting log to RINEX...Approximate time left: " + conversion_time_string
+            "conversion_time": conversion_time_string
         }
 
         conversion_result_package = {
@@ -569,7 +569,7 @@ class RTKLIB:
         if log is not None:
             result = log.createLogPackage()
             if log.isValid():
-                conversion_result_package["conversion_status"] = "Conversion successful"
+                conversion_result_package["conversion_status"] = "Log converted to RINEX"
                 conversion_result_package["messages_parsed"] = log.log_metadata.formValidMessagesString()
             else:
                 conversion_result_package["conversion_status"] = "Conversion successful, but log does not contain any useful data. Downloading raw log"

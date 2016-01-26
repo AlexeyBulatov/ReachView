@@ -95,7 +95,7 @@ class LogManager():
         elif log_path.endswith("ubx"):
             conversion_time = 1.2 * log_size
 
-        return self.formTimeString(conversion_time)
+        return "{:.0f}".format(conversion_time)
 
     def deleteLog(self, log_filename):
         # try to delete log if it exists

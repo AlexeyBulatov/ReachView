@@ -50,6 +50,29 @@ function updateConversionStatusDialog(log_being_converted, conversion_status) {
     logs_list.listview("refresh");
 }
 
+function setConversionTimer(log_being_converted, time_string) {
+
+    var dialog_id = log_being_converted + "_status";
+    dialog_id = dialog_id.replace(".", "_");
+
+    console.log("Setting conversion timer for " + dialog_id);
+    console.log("Timer string is " + time_string);
+
+    time = parseInt(time_string, 10);
+
+    var intervalID = setInterval(function() {
+        --time;
+        var formatted_time = Math.floor(time / 60) + ' minutes ' + time % 60 + ' seconds';
+        var msg = "Converting log to RINEX...Approximate time left: ";
+        $('#' + dialog_id).html("<strong>" + msg + formatted_time + "</strong>");
+    }, 1000);
+
+    setTimeout(function() {
+        clearInterval(intervalID);
+        $('#' + dialog_id).html("Your download will begin shortly");
+    }, time * 1000);
+}
+
 $(document).on("pageinit", "#config_page", function() {
 
     console.info($("#config_select").val());
@@ -342,6 +365,10 @@ $(document).on("pageinit", "#logs_page", function() {
             var log_state = '';
             var splitLogString = $(this).find("h2").text().split(',');
 
+            var log_start_time = extractTimeFromLogName(splitLogString[0]);
+            var log_size = "(" + splitLogString[1] + " MB)"
+            var log_format = splitLogString[2];
+
             var paragraph_id = splitLogString[0] + "_status";
             paragraph_id = paragraph_id.replace(".", "_");
 
@@ -355,10 +382,6 @@ $(document).on("pageinit", "#logs_page", function() {
                 log_state = 'Solution';
             else if(splitLogString[0].slice(0, 3) == 'bas')
                 log_state = 'Base';
-
-            var log_start_time = extractTimeFromLogName(splitLogString[0]);
-            var log_size = "(" + splitLogString[1] + " MB)"
-            var log_format = splitLogString[2];
 
             $(this).find("h2").text(log_state + ': ' + log_start_time + " " + log_size + " " + log_format);
         });
@@ -392,7 +415,8 @@ $(document).on("pageinit", "#logs_page", function() {
         console.log("Log conversion start");
 
         // append a status window after the listview item
-        updateConversionStatusDialog(log_being_converted, time_estimate);
+        updateConversionStatusDialog(log_being_converted, "Preparing to convert...");
+        setConversionTimer(log_being_converted, time_estimate);
     });
 
     socket.on("log conversion results", function(msg) {
