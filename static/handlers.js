@@ -413,7 +413,7 @@ $(document).on("pageinit", "#logs_page", function() {
         console.log("Log download path == " + msg.log_url_tail);
 
         var full_log_url = location.protocol + '//' + location.host + msg.log_url_tail;
-        // window.location.href = full_log_url;
+        window.location.href = full_log_url;
     });
 });
 
