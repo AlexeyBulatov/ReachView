@@ -169,7 +169,7 @@ def deleteLog(json):
 def processLog(json):
     log_name = json.get("name")
 
-    print("Got signal to download a log, name = " + str(log_name))
+    print("Got signal to process a log, name = " + str(log_name))
     print("Path to log == " + rtk.logm.log_path + "/" + str(log_name))
 
     raw_log_path = rtk.logm.log_path + "/" + log_name

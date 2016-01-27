@@ -239,14 +239,14 @@ along with ReachView.  If not, see <http://www.gnu.org/licenses/>. -->
         <div id="ui-bar-test" class="ui-bar ui-bar-a ui-corner-all empty_logs" style="display:none;">
             <p>There are currently no logs available</p>
         </div>
-        <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a" data-split-icon="delete">
+        <ul data-role="listview" data-inset="true" id="logs_list" data-split-theme="a">
             {% for log in logs %}
                 <li>
                     <a href="#" id="/logs/{{ log.name }}" class="log_string">
                         <h2>{{ log.name }},{{ log.size }},{{ log.format }},{{ log.is_being_converted }}</h2>
                         <p class="log_conversion_status_string"></p>
                     </a>
-                    <a href="#" class='delete-log-button'>Delete</a>
+                    <a href="#" id="delete_{{ log.name }}" data-icon="delete" class="delete-log-button">Delete</a>
                 </li>
             {% endfor %}
         </ul>

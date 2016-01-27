@@ -50,6 +50,57 @@ function updateConversionStatusDialog(log_being_converted, conversion_status) {
     logs_list.listview("refresh");
 }
 
+function createCancelConversionButton(log_being_converted) {
+    var dialog_id = "delete_" + log_being_converted;
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating icon from delete to cancel on button " + dialog_id);
+    console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
+    // dialog_id = dialog_id.replace(".", "_");
+
+    $("#" + dialog_id).attr("data-icon", "forbidden");
+    $("#" + dialog_id).addClass("ui-icon-forbidden").removeClass("ui-icon-delete");
+    $("#" + dialog_id).addClass("cancel-log-button").removeClass("delete-log-button");
+
+    logs_list.listview("refresh");
+
+    $(".cancel-log-button").off("click");
+    $(".cancel-log-button").on("click", function () {
+        console.log("Sending cancel msg");
+        socket.emit("cancel log conversion", {"name": log_being_converted});
+    })
+}
+
+function deleteCancelConversionButton(log_being_converted) {
+    var dialog_id = "delete_" + log_being_converted;
+    dialog_id = dialog_id.replace(".", "_");
+    var logs_list = $("#logs_list");
+
+    console.log("Updating icon from delete to cancel on button " + dialog_id);
+    console.log("Current icon is " + $("#" + dialog_id).attr("data-icon"));
+    // dialog_id = dialog_id.replace(".", "_");
+
+    $(".cancel-log-button").off("click");
+    $(".cancel-log-button").on("click", function () {
+        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        $(this).parent().remove();
+
+        console.log("Delete log: " + log_to_delete);
+        socket.emit("delete log", {"name": log_to_delete});
+
+        if($('.log_string').length == '0') {
+            $('.empty_logs').css('display', 'block');
+        }
+    })
+
+    $("#" + dialog_id).attr("data-icon", "delete");
+    $("#" + dialog_id).removeClass("ui-icon-forbidden").addClass("ui-icon-delete");
+    $("#" + dialog_id).removeClass("cancel-log-button").addClass("delete-log-button");
+
+    logs_list.listview("refresh");
+}
+
 function setConversionTimer(log_being_converted, time_string) {
         var msg = "Converting log to RINEX...Approximate time left: ";
         var formatted_time = Math.floor(time_string / 60) + ' minutes ' + time_string % 60 + ' seconds';
@@ -424,8 +475,13 @@ $(document).on("pageinit", "#logs_page", function() {
         });
     });
 
+    $('.delete-log-button').each(function () {
+        var current_id = $(this).attr("id");
+        $(this).attr("id", current_id.replace(".", "_"));
+    })
+
     $('.delete-log-button').click(function(){
-        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
         $(this).parent().remove();
 
         console.log("Delete log: " + log_to_delete);
@@ -446,6 +502,8 @@ $(document).on("pageinit", "#logs_page", function() {
         // append a status window after the listview item
         updateConversionStatusDialog(log_being_converted, "Preparing to convert...");
         setConversionTimer(log_being_converted, time_estimate);
+        console.log("Create cancel conversion button");
+        createCancelConversionButton(log_being_converted);
     });
 
     socket.on("log conversion results", function(msg) {
@@ -458,6 +516,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
         var update_message = conversion_status + ". " + messages_parsed;
         updateConversionStatusDialog(log_being_converted, update_message);
+        deleteCancelConversionButton(log_being_converted);
     });
 
     socket.on("log download path", function(msg) {
