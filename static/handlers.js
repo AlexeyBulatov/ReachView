@@ -83,7 +83,7 @@ function deleteCancelConversionButton(log_being_converted) {
 
     $(".cancel-log-button").off("click");
     $(".cancel-log-button").on("click", function () {
-        var log_to_delete = $(this).parent().children('.log_string').attr('href').slice(6);
+        var log_to_delete = $(this).parent().children('.log_string').attr('id').slice(6);
         $(this).parent().remove();
 
         console.log("Delete log: " + log_to_delete);
@@ -124,6 +124,8 @@ function setConversionTimer(log_being_converted, time_string) {
            clearInterval(intervalID);
            $('#' + dialog_id).html("Your download will begin shortly");
         }, time_string * 1000);
+
+        return intervalID;
     }
 
 // function setConversionTimer(log_being_converted, time_string) {
@@ -431,6 +433,8 @@ $(document).on("pageinit", "#config_page", function() {
 
 $(document).on("pageinit", "#logs_page", function() {
 
+    var interval_timer = "";
+
     if($('.log_string').length == '0'){
         $('.empty_logs').css('display', 'block');
     }
@@ -501,7 +505,7 @@ $(document).on("pageinit", "#logs_page", function() {
 
         // append a status window after the listview item
         updateConversionStatusDialog(log_being_converted, "Preparing to convert...");
-        setConversionTimer(log_being_converted, time_estimate);
+        interval_timer = setConversionTimer(log_being_converted, time_estimate);
         console.log("Create cancel conversion button");
         createCancelConversionButton(log_being_converted);
     });
@@ -525,6 +529,15 @@ $(document).on("pageinit", "#logs_page", function() {
         var full_log_url = location.protocol + '//' + location.host + msg.log_url_tail;
         window.location.href = full_log_url;
     });
+
+    socket.on("log conversion canceled", function(msg) {
+        var log_being_converted = msg.name;
+        console.log("Log conversion cancel confirmed!");
+
+        clearInterval(interval_timer);
+        updateConversionStatusDialog(log_being_converted, "log conversion canceled");
+        deleteCancelConversionButton(log_being_converted);
+    })
 
     socket.on("clean busy messages", function(msg) {
         console.log("Clearing busy messages");

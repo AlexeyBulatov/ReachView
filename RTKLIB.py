@@ -484,6 +484,18 @@ class RTKLIB:
 
         print(self.conm.available_configs)
 
+    def cancelLogConversion(self, raw_log_path):
+        if self.logm.log_being_converted:
+            print("Canceling log conversion for " + raw_log_path)
+            self.logm.convbin.child.close(force = True)
+
+            print("Thread killed")
+            self.logm.cleanLogFiles(raw_log_path)
+            self.logm.log_being_converted = ""
+
+            self.socketio.emit("log conversion canceled", {"name": os.path.basename(raw_log_path)}, namespace="/test")
+            print("Canceled msg sent")
+
     def processLogPackage(self, raw_log_path):
 
         currently_converting = False
@@ -534,6 +546,8 @@ class RTKLIB:
             self.socketio.emit("log conversion results", already_converted_package, namespace="/test")
         else:
             result_path = self.createRINEXPackage(raw_log_path)
+            if result_path is None:
+                return None
 
         log_url_tail = "/logs/download/" + os.path.basename(result_path)
         self.socketio.emit("log download path", {"log_url_tail": log_url_tail}, namespace="/test")
@@ -569,7 +583,10 @@ class RTKLIB:
         }
 
         self.socketio.emit("log conversion start", start_package, namespace="/test")
-        log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+        try:
+            log = self.logm.convbin.convertRTKLIBLogToRINEX(raw_log_path)
+        except:
+            return None
 
         print("Log conversion done!")
 

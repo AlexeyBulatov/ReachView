@@ -175,11 +175,18 @@ def processLog(json):
     raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.processLogPackage(raw_log_path)
 
+@socketio.on("cancel log conversion", namespace="/test")
+def cancelLogConversion(json):
+    log_name = json.get("name")
+    raw_log_path = rtk.logm.log_path + "/" + log_name
+    rtk.cancelLogConversion(raw_log_path)
+
 #### Delete config ####
 @socketio.on("delete config", namespace="/test")
 def deleteLog(json):
+    log_name = json.get("name")
+    raw_log_path = rtk.logm.log_path + "/" + log_name
     rtk.deleteConfig(json.get("name"))
-    # rtk.conm.deleteConfig(json.get("name"))
 
 #### Reset config to default ####
 @socketio.on("reset config", namespace="/test")

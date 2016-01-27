@@ -102,6 +102,21 @@ class LogManager():
 
         return "{:.0f}".format(conversion_time)
 
+    def cleanLogFiles(self, log_path):
+        # delete all files except for the raw log
+        full_path_logs = glob(self.log_path + "/*.rtcm3") + glob(self.log_path + "/*.ubx")
+        extensions_not_to_delete = [".zip", ".ubx", ".rtcm3"]
+
+        log_without_extension = os.path.splitext(log_path)[0]
+        log_files = glob(log_without_extension + "*")
+
+        for log_file in log_files:
+            if not any(log_file.endswith(ext) for ext in extensions_not_to_delete):
+                try:
+                    os.remove(log_file)
+                except OSError, e:
+                    print ("Error: " + e.filename + " - " + e.strerror)
+
     def deleteLog(self, log_filename):
         # try to delete log if it exists
 
